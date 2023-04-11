@@ -1,7 +1,7 @@
 ﻿
 namespace SandSimulator.Voxel
 {
-	internal class Position
+	internal record Position
 	{
 		public int X { get; set; }
 

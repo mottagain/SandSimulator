@@ -31,6 +31,12 @@ namespace SandSimulator.Voxel
 						Y = pos.Y + offset.Y
 					};
 
+					// If we're sand and falling straight down into water, allow move
+					if (grid[pos] == VoxelType.Sand && pos.Y == targetPos.Y + 1 && grid[targetPos] == VoxelType.Water)
+					{
+						return targetPos;
+					}
+
 					if (grid[targetPos] == VoxelType.None)
 					{
 						return targetPos;

@@ -16,7 +16,7 @@ namespace SandSimulator.Systems
 		private VoxelGrid _grid;
 
 		public VoxelRenderSystem(GraphicsDevice device, VoxelGrid grid)
-			: base(Aspect.All(typeof(CheckVoxelComponent)))
+			: base(Aspect.All(typeof(MovingVoxelComponent)))
 		{
 			_device = device;
 			_batch = new SpriteBatch(device);
