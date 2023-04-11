@@ -27,34 +27,45 @@ namespace SandSimulator.Systems
 			foreach (var entityId in ActiveEntities)
 			{
 				var checkPos = _gridPosMapper.Get(entityId);
+				Position[] moveTestOffsets = null;
 
 				switch (_grid[checkPos.Position.X, checkPos.Position.Y])
 				{
 					case VoxelType.Sand:
-						foreach (var offset in SandMoveOffsets)
-						{
-							var targetPos = new Position
-							{
-								X = checkPos.Position.X + offset.X,
-								Y = checkPos.Position.Y + offset.Y
-							};
-
-							if (_grid[targetPos] == VoxelType.None)
-							{
-								var entity = CreateEntity();
-								entity.Attach(new VoxelMove { From = checkPos.Position, To = targetPos });
-								break;
-							}
-						}
+						moveTestOffsets = SandMoveOffsets;
+						break;
+					case VoxelType.Water:
+						moveTestOffsets = WaterMoveOffsets;
 						break;
 					case VoxelType.Rock:
 						// Do nothing
 						break;
 				}
+
+				if (moveTestOffsets != null)
+				{
+					foreach (var offset in moveTestOffsets)
+					{
+						var targetPos = new Position
+						{
+							X = checkPos.Position.X + offset.X,
+							Y = checkPos.Position.Y + offset.Y
+						};
+
+						if (_grid[targetPos] == VoxelType.None)
+						{
+							var entity = CreateEntity();
+							entity.Attach(new VoxelMove { From = checkPos.Position, To = targetPos });
+							break;
+						}
+					}
+				}
+
 				DestroyEntity(entityId);
 			}
 		}
 
-		private Position[] SandMoveOffsets = new Position[] { new Position { X = 0, Y = 1 }, new Position { X = -1, Y = 1 }, new Position { X = 1, Y = 1 } };
+		private Position[] SandMoveOffsets = new Position[] { new Position { X = 0, Y = -1 }, new Position { X = -1, Y = -1 }, new Position { X = 1, Y = -1 } };
+		private Position[] WaterMoveOffsets = new Position[] { new Position { X = 0, Y = -1}, new Position { X = -1,Y = 0 }, new Position { X = 1, Y = 0 } };
 	}
 }

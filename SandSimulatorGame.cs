@@ -40,7 +40,7 @@ namespace SandSimulator
 
 			for (int i = 0; i < _simulation.Width; i++)
 			{
-				_simulation.AddVoxel(i, _simulation.Height - 1, VoxelType.Rock);
+				_simulation.AddVoxel(i, 0, VoxelType.Rock);
 			}
 
 			base.Initialize();
@@ -65,6 +65,10 @@ namespace SandSimulator
 			if (Keyboard.GetState().IsKeyDown(Keys.R))
 			{
 				CreateVoxelAtCursor(VoxelType.Rock);
+			}
+			if (Keyboard.GetState().IsKeyDown(Keys.W))
+			{
+				CreateVoxelAtCursor(VoxelType.Water);
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.D))
 			{
@@ -93,7 +97,7 @@ namespace SandSimulator
 			var cellHeight = Window.ClientBounds.Height / _simulation.Height;
 
 			var posX = mouseState.X / cellWidth;
-			var posY = mouseState.Y / cellHeight;
+			var posY = _simulation.Grid.Height - (mouseState.Y / cellHeight) - 1;
 
 			if (_simulation.Grid[posX, posY] == VoxelType.None)
 			{

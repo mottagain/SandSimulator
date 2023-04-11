@@ -8,8 +8,11 @@ namespace SandSimulator.Voxel
 		None = 0,
 		Sand = 1,
 		Rock = 2,
+		Water = 3,
 	}
 
+	// X increases toward the right
+	// Y increases toward the top
 	internal class VoxelGrid
 	{
 		private int _width;

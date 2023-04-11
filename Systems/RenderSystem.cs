@@ -40,7 +40,7 @@ namespace SandSimulator.Systems
 				for (int i = 0; i < _grid.Width; i++)
 				{
 					var posX = i * cellWidth;
-					var posY = j * cellHeight;
+					var posY = _device.Viewport.Height - (j + 1) * cellHeight;
 
 					var voxelType = _grid[i, j];
 					var color = GetColorFromVoxelType(voxelType);
@@ -57,6 +57,7 @@ namespace SandSimulator.Systems
 				case VoxelType.None: return Color.Black;
 				case VoxelType.Sand: return Color.Yellow;
 				case VoxelType.Rock: return Color.Gray;
+				case VoxelType.Water: return Color.Blue;
 				default: return Color.Red;
 			}
 		}
