@@ -9,14 +9,14 @@ using SandSimulator.Voxel;
 
 namespace SandSimulator.Systems
 {
-	internal class RenderSystem : EntityDrawSystem
+	internal class VoxelRenderSystem : EntityDrawSystem
 	{
 		private GraphicsDevice _device;
 		private SpriteBatch _batch;
 		private VoxelGrid _grid;
 
-		public RenderSystem(GraphicsDevice device, VoxelGrid grid)
-			: base(Aspect.All(typeof(CheckPosition)))
+		public VoxelRenderSystem(GraphicsDevice device, VoxelGrid grid)
+			: base(Aspect.All(typeof(CheckVoxelComponent)))
 		{
 			_device = device;
 			_batch = new SpriteBatch(device);

@@ -56,6 +56,17 @@ namespace SandSimulator.Voxel
 			{
 				return this[pos.X, pos.Y];
 			}
+			set
+			{
+				this[pos.X, pos.Y] = value;
+			}
+		}
+
+		public void Swap(Position a, Position b)
+		{
+			var temp = this[a];
+			this[a] = this[b];
+			this[b] = temp;
 		}
 	}
 }

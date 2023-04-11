@@ -3,8 +3,9 @@ using SandSimulator.Voxel;
 
 namespace SandSimulator.Components
 {
-	internal class CheckPosition
+	internal class MovingVoxelComponent
 	{
-		public Position Position { get; set; }
+		public int Velocity { get ; set; }
+
 	}
 }

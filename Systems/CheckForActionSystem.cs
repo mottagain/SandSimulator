@@ -8,60 +8,38 @@ namespace SandSimulator.Systems
 {
 	internal class CheckForActionSystem : EntityUpdateSystem
 	{
-		private ComponentMapper<CheckPosition> _gridPosMapper;
+		private ComponentMapper<CheckVoxelComponent> _checkPosMapper;
+		private ComponentMapper<PositionComponent> _posMapper;
 		private VoxelGrid _grid;
 
 		public CheckForActionSystem(VoxelGrid grid)
-			: base(Aspect.All(typeof(CheckPosition)))
+			: base(Aspect.All(typeof(PositionComponent), typeof(CheckVoxelComponent)))
 		{
 			_grid = grid;
 		}
 
 		public override void Initialize(IComponentMapperService mapperService)
 		{
-			_gridPosMapper = mapperService.GetMapper<CheckPosition>();
+			_checkPosMapper = mapperService.GetMapper<CheckVoxelComponent>();
+			_posMapper = mapperService.GetMapper<PositionComponent>();
 		}
 
 		public override void Update(GameTime gameTime)
 		{
 			foreach (var entityId in ActiveEntities)
 			{
-				var checkPos = _gridPosMapper.Get(entityId);
-				Position[] moveTestOffsets = null;
-
-				switch (_grid[checkPos.Position.X, checkPos.Position.Y])
+				var checkPos = _posMapper.Get(entityId);
+				if (Material.PotentialMove(_grid, checkPos.Position) != null)
 				{
-					case VoxelType.Sand:
-						moveTestOffsets = SandMoveOffsets;
-						break;
-					case VoxelType.Water:
-						moveTestOffsets = WaterMoveOffsets;
-						break;
-					case VoxelType.Rock:
-						// Do nothing
-						break;
+					var entity = GetEntity(entityId);
+					entity.Detach<CheckVoxelComponent>();
+					entity.Attach(new MovingVoxelComponent());
+					break;
 				}
-
-				if (moveTestOffsets != null)
+				else
 				{
-					foreach (var offset in moveTestOffsets)
-					{
-						var targetPos = new Position
-						{
-							X = checkPos.Position.X + offset.X,
-							Y = checkPos.Position.Y + offset.Y
-						};
-
-						if (_grid[targetPos] == VoxelType.None)
-						{
-							var entity = CreateEntity();
-							entity.Attach(new VoxelMove { From = checkPos.Position, To = targetPos });
-							break;
-						}
-					}
+					DestroyEntity(entityId);
 				}
-
-				DestroyEntity(entityId);
 			}
 		}
 

@@ -3,6 +3,17 @@ A simple ECS based voxel sand simulator in C#.
 
 
 # TODO List:
-* Add water
+* Identify and fix leak in moving entities
+* Predictable Order of traversal
 * Add velocity of movement
-* Render only changes (instead of clearing each frame)
+* Add more natural stacking
+* Wood
+* Acid
+* Gas
+* Fire
+* Embers
+* Tiling
+* Center Position that can be moved
+* Proceedural world gen
+* Ridgid body & Physics
+* Player

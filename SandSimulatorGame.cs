@@ -33,7 +33,7 @@ namespace SandSimulator
 			_world = new WorldBuilder()
 				.AddSystem(new VoxelMoveSystem(grid))
 				.AddSystem(new CheckForActionSystem(grid))
-				.AddSystem(new RenderSystem(GraphicsDevice, grid))
+				.AddSystem(new VoxelRenderSystem(GraphicsDevice, grid))
 				.Build();
 
 			_simulation = new VoxelSimulation(grid, _world.CreateEntity);
