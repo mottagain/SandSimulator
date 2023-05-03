@@ -32,7 +32,7 @@ namespace SandSimulator
 
 		protected override void Initialize()
 		{
-			var grid = new VoxelGrid(32, 18); //160, 90);
+			var grid = new VoxelGrid(160, 90);
 
 			_world = new WorldBuilder()
 				.AddSystem(new StatisticsSystem(grid, _statistics))

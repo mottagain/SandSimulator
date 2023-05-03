@@ -4,6 +4,7 @@ using MonoGame.Extended.Entities.Systems;
 using SandSimulator.Components;
 using SandSimulator.Voxel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SandSimulator.Systems
 {
@@ -38,7 +39,7 @@ namespace SandSimulator.Systems
 			var potentialCheckPositions = new HashSet<Position>();
 			var occupiedPositions = new HashSet<Position>();
 
-			foreach (var entityId in ActiveEntities)
+			foreach (var entityId in ActiveEntities.OrderBy(id => _posMapper.Get(id).Position))
 			{
 				var posComponent = _posMapper.Get(entityId);
 				var moveComponent = _movingVoxelMapper.Get(entityId);

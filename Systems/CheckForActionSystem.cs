@@ -3,6 +3,7 @@ using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using SandSimulator.Components;
 using SandSimulator.Voxel;
+using System.Linq;
 
 namespace SandSimulator.Systems
 {
@@ -26,7 +27,7 @@ namespace SandSimulator.Systems
 
 		public override void Update(GameTime gameTime)
 		{
-			foreach (var entityId in ActiveEntities)
+			foreach (var entityId in ActiveEntities.OrderBy(id => _posMapper.Get(id).Position))
 			{
 				var entity = GetEntity(entityId);
 				entity.Detach<CheckVoxelComponent>();
