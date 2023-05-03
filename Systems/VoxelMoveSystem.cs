@@ -12,11 +12,19 @@ namespace SandSimulator.Systems
 		private ComponentMapper<PositionComponent> _posMapper;
 		private ComponentMapper<MovingVoxelComponent> _movingVoxelMapper;
 		private VoxelGrid _grid;
+		private World _world;
 
 		public VoxelMoveSystem(VoxelGrid grid)
-			: base(Aspect.All(typeof(PositionComponent)).One(typeof(MovingVoxelComponent), typeof(CheckVoxelComponent)))
+			: base(Aspect.All(typeof(PositionComponent), typeof(MovingVoxelComponent)))
 		{
 			_grid = grid;
+		}
+
+		public override void Initialize(World world)
+		{
+			_world = world;
+
+			base.Initialize(world);
 		}
 
 		public override void Initialize(IComponentMapperService mapperService)
@@ -28,54 +36,53 @@ namespace SandSimulator.Systems
 		public override void Update(GameTime gameTime)
 		{
 			var potentialCheckPositions = new HashSet<Position>();
+			var occupiedPositions = new HashSet<Position>();
 
 			foreach (var entityId in ActiveEntities)
 			{
 				var posComponent = _posMapper.Get(entityId);
 				var moveComponent = _movingVoxelMapper.Get(entityId);
 
-				if (moveComponent != null)
+				var oldPos = posComponent.Position;
+	
+				var newPos = Material.PotentialMove(_grid, oldPos);
+				if (newPos != null && _grid[oldPos] == moveComponent.SourceVoxel && _grid[oldPos] != _grid[newPos])
 				{
-					var oldPos = posComponent.Position;
-					potentialCheckPositions.Remove(oldPos);
+					occupiedPositions.Add(newPos);
 
-					var newPos = Material.PotentialMove(_grid, oldPos);
-					if (newPos != null)
+					_grid.Swap(oldPos, newPos);
+					posComponent.Position = newPos;
+					_posMapper.Put(entityId, posComponent);
+
+					// Check all positions around this one to see if they may be impacted
+					// Including the new destination position
+					foreach (var offset in Offsets)
 					{
-						potentialCheckPositions.Remove(newPos);
-						_grid.Swap(oldPos, newPos);
-						posComponent.Position = newPos;
-
-						// Check all positions around this one to see if they may be impacted
-						// Including the new destination position
-						foreach (var offset in Offsets)
+						var testPos = new Position { X = oldPos.X + offset.X, Y = oldPos.Y + offset.Y };
+						if (_grid[testPos] != VoxelType.None)
 						{
-							var testPos = new Position { X = oldPos.X + offset.X, Y = oldPos.Y + offset.Y };
-							if (_grid[testPos] != VoxelType.None)
-							{
-								potentialCheckPositions.Add(testPos);
-							}
+							potentialCheckPositions.Add(testPos);
 						}
 					}
-					else
-					{
-						DestroyEntity(entityId);
-					}
 				}
-			}
-
-			// Remove all potential check positions that we're already tracking
-			foreach (var entityId in ActiveEntities)
-			{
-				var posComponent = _posMapper.Get(entityId);
-				potentialCheckPositions.Remove(posComponent.Position);
+				else
+				{
+					// Move is no longer valid, remove it.
+					var entity = GetEntity(entityId);
+					entity.Detach<PositionComponent>();
+					entity.Detach<MovingVoxelComponent>();
+					entity.Destroy();
+				}
 			}
 
 			foreach (var pos in potentialCheckPositions)
 			{
-				var entity = CreateEntity();
-				entity.Attach(new PositionComponent { Position = pos });
-				entity.Attach(new CheckVoxelComponent());
+				if (!occupiedPositions.Contains(pos))
+				{
+					var entity = CreateEntity();
+					entity.Attach(new PositionComponent { Position = pos });
+					entity.Attach(new CheckVoxelComponent());
+				}
 			}
 		}
 
@@ -87,6 +94,7 @@ namespace SandSimulator.Systems
 			new Position { X = -1, Y = -1 },
 			new Position { X = 1, Y = -1 },
 			new Position { X = -1, Y = 1 },
-			new Position { X = 1, Y = 1 } };
+			new Position { X = 1, Y = 1 },
+			};
 	}
 }

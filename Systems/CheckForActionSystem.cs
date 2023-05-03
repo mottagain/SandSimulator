@@ -28,17 +28,18 @@ namespace SandSimulator.Systems
 		{
 			foreach (var entityId in ActiveEntities)
 			{
+				var entity = GetEntity(entityId);
+				entity.Detach<CheckVoxelComponent>();
+
 				var checkPos = _posMapper.Get(entityId);
 				if (Material.PotentialMove(_grid, checkPos.Position) != null)
 				{
-					var entity = GetEntity(entityId);
-					entity.Detach<CheckVoxelComponent>();
-					entity.Attach(new MovingVoxelComponent());
-					break;
+					entity.Attach(new MovingVoxelComponent { SourceVoxel = _grid[checkPos.Position] });
 				}
 				else
 				{
-					DestroyEntity(entityId);
+					entity.Detach<PositionComponent>();
+					entity.Destroy();
 				}
 			}
 		}
