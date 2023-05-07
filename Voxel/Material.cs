@@ -8,9 +8,9 @@ namespace SandSimulator.Voxel
 	{
 		private static Random random = new Random();
 
-		public static Position? PotentialMove(VoxelGrid grid, Position pos)
+		public static IntVector2? PotentialMove(VoxelGrid grid, IntVector2 pos)
 		{
-			Position[]? moveTestOffsets = null;
+			IntVector2[]? moveTestOffsets = null;
 
 			bool flip = random.Next(0, 2) == 0;
 
@@ -31,19 +31,9 @@ namespace SandSimulator.Voxel
 			{
 				foreach (var offset in moveTestOffsets)
 				{
-					var targetPos = new Position
-					{
-						X = pos.X + offset.X,
-						Y = pos.Y + offset.Y
-					};
+					var targetPos = pos + offset;
 
-					//If we're sand and falling straight down into water, allow move
-					if (grid[pos] == VoxelType.Sand && pos.Y == targetPos.Y + 1 && grid[targetPos] == VoxelType.Water)
-					{
-						return targetPos;
-					}
-
-					if (grid[targetPos] == VoxelType.None)
+					if (IsValidMove(grid, pos, targetPos))
 					{
 						return targetPos;
 					}
@@ -52,10 +42,29 @@ namespace SandSimulator.Voxel
 			return null;
 		}
 
-		private static Position[] SandMoveOffsetsLeftRight = new Position[] { new Position { X = 0, Y = -1 }, new Position { X = -1, Y = -1 }, new Position { X = 1, Y = -1 } };
-		private static Position[] SandMoveOffsetsRightLeft = new Position[] { new Position { X = 0, Y = -1 }, new Position { X = 1, Y = -1 }, new Position { X = -1, Y = -1 } };
-		private static Position[] WaterMoveOffsetsLeftRight = new Position[] { new Position { X = 0, Y = -1 }, new Position { X = -1, Y = 0 }, new Position { X = 1, Y = 0 } };
-		private static Position[] WaterMoveOffsetsRightLeft = new Position[] { new Position { X = 0, Y = -1 }, new Position { X = 1, Y = 0 }, new Position { X = -1, Y = 0 } };
+		public static bool IsValidMove(VoxelGrid grid, IntVector2 fromPos, IntVector2 toPos)
+		{
+			if (grid[fromPos] != grid[toPos])
+			{
+				//If we're sand and falling straight down into water, allow move
+				if (grid[fromPos] == VoxelType.Sand && fromPos.Y == toPos.Y + 1 && grid[toPos] == VoxelType.Water)
+				{
+					return true;
+				}
+
+				if (grid[toPos] == VoxelType.None)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private static IntVector2[] SandMoveOffsetsLeftRight = new IntVector2[] { new IntVector2 { X = 0, Y = -1 }, new IntVector2 { X = -1, Y = -1 }, new IntVector2 { X = 1, Y = -1 } };
+		private static IntVector2[] SandMoveOffsetsRightLeft = new IntVector2[] { new IntVector2 { X = 0, Y = -1 }, new IntVector2 { X = 1, Y = -1 }, new IntVector2 { X = -1, Y = -1 } };
+		private static IntVector2[] WaterMoveOffsetsLeftRight = new IntVector2[] { new IntVector2 { X = 0, Y = -1 }, new IntVector2 { X = -1, Y = 0 }, new IntVector2 { X = 1, Y = 0 } };
+		private static IntVector2[] WaterMoveOffsetsRightLeft = new IntVector2[] { new IntVector2 { X = 0, Y = -1 }, new IntVector2 { X = 1, Y = 0 }, new IntVector2 { X = -1, Y = 0 } };
 	}
 }
 #nullable restore

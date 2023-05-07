@@ -7,7 +7,6 @@ namespace SandSimulator.Components
 	{
 		public VoxelType SourceVoxel { get; set; }
 
-		public int Velocity { get ; set; }
-
+		public IntVector2 Velocity { get ; set; }
 	}
 }

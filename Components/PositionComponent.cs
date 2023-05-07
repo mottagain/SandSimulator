@@ -5,6 +5,6 @@ namespace SandSimulator.Components
 {
 	internal class PositionComponent
 	{
-		public Position Position { get; set; }
+		public IntVector2 Position { get; set; }
 	}
 }

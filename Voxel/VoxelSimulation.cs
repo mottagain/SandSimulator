@@ -22,7 +22,7 @@ namespace SandSimulator.Voxel
 		{
 			_grid[x, y] = type;
 			var entity = _createEntity();
-			entity.Attach(new PositionComponent { Position = new Position { X = x, Y = y } });
+			entity.Attach(new PositionComponent { Position = new IntVector2 { X = x, Y = y } });
 			entity.Attach(new CheckVoxelComponent());
 
 			Console.Error.WriteLine("Add voxel {0}", type);

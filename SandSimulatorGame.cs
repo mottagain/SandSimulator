@@ -122,7 +122,7 @@ namespace SandSimulator
 			}
 		}
 
-		private Position GetCursorPosInGrid()
+		private IntVector2 GetCursorPosInGrid()
 		{
 			var mouseState = Mouse.GetState();
 
@@ -132,7 +132,7 @@ namespace SandSimulator
 			var posX = mouseState.X / cellWidth;
 			var posY = _simulation.Grid.Height - (mouseState.Y / cellHeight) - 1;
 
-			return  new Position { X = posX, Y = posY };
+			return  new IntVector2 { X = posX, Y = posY };
 		}
 	}
 }

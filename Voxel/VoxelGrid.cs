@@ -50,7 +50,7 @@ namespace SandSimulator.Voxel
 			}
 		}
 
-		public VoxelType this[Position pos]
+		public VoxelType this[IntVector2 pos]
 		{
 			get
 			{
@@ -62,7 +62,7 @@ namespace SandSimulator.Voxel
 			}
 		}
 
-		public void Swap(Position a, Position b)
+		public void Swap(IntVector2 a, IntVector2 b)
 		{
 			var temp = this[a];
 			this[a] = this[b];

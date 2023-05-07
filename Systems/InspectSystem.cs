@@ -13,14 +13,14 @@ namespace SandSimulator.Systems
 	{
 		public InspectState()
 		{
-			PositionData = new Dictionary<Position, (PosEcsState, VoxelType)>();
+			PositionData = new Dictionary<IntVector2, (PosEcsState, VoxelType)>();
 		}
 
-		public Position? TargetPosition { get; set; }
+		public IntVector2? TargetPosition { get; set; }
 
 		public long Frame { get; set; }
 
-		public Dictionary<Position, (PosEcsState, VoxelType)> PositionData { get; private set; }
+		public Dictionary<IntVector2, (PosEcsState, VoxelType)> PositionData { get; private set; }
 
 		public override string ToString()
 		{

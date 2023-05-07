@@ -32,10 +32,14 @@ namespace SandSimulator.Systems
 				var entity = GetEntity(entityId);
 				entity.Detach<CheckVoxelComponent>();
 
-				var checkPos = _posMapper.Get(entityId);
-				if (Material.PotentialMove(_grid, checkPos.Position) != null)
+				var currentPos = _posMapper.Get(entityId).Position;
+				var targetPos = Material.PotentialMove(_grid, currentPos);
+				if (targetPos != null)
 				{
-					entity.Attach(new MovingVoxelComponent { SourceVoxel = _grid[checkPos.Position] });
+					entity.Attach(new MovingVoxelComponent { 
+						SourceVoxel = _grid[currentPos],
+						Velocity = targetPos - currentPos,
+					});;
 				}
 				else
 				{
@@ -45,7 +49,7 @@ namespace SandSimulator.Systems
 			}
 		}
 
-		private Position[] SandMoveOffsets = new Position[] { new Position { X = 0, Y = -1 }, new Position { X = -1, Y = -1 }, new Position { X = 1, Y = -1 } };
-		private Position[] WaterMoveOffsets = new Position[] { new Position { X = 0, Y = -1}, new Position { X = -1,Y = 0 }, new Position { X = 1, Y = 0 } };
+		private IntVector2[] SandMoveOffsets = new IntVector2[] { new IntVector2 { X = 0, Y = -1 }, new IntVector2 { X = -1, Y = -1 }, new IntVector2 { X = 1, Y = -1 } };
+		private IntVector2[] WaterMoveOffsets = new IntVector2[] { new IntVector2 { X = 0, Y = -1}, new IntVector2 { X = -1,Y = 0 }, new IntVector2 { X = 1, Y = 0 } };
 	}
 }

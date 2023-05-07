@@ -36,8 +36,8 @@ namespace SandSimulator.Systems
 
 		public override void Update(GameTime gameTime)
 		{
-			var potentialCheckPositions = new HashSet<Position>();
-			var occupiedPositions = new HashSet<Position>();
+			var potentialCheckPositions = new HashSet<IntVector2>();
+			var occupiedPositions = new HashSet<IntVector2>();
 
 			foreach (var entityId in ActiveEntities.OrderBy(id => _posMapper.Get(id).Position))
 			{
@@ -45,35 +45,57 @@ namespace SandSimulator.Systems
 				var moveComponent = _movingVoxelMapper.Get(entityId);
 
 				var oldPos = posComponent.Position;
-	
-				var newPos = Material.PotentialMove(_grid, oldPos);
-				if (newPos != null && _grid[oldPos] == moveComponent.SourceVoxel && _grid[oldPos] != _grid[newPos])
+
+				// Addresses corner case where swaping pixels on a successful move can move it out from underneath an active move.
+				if (_grid[oldPos] == moveComponent.SourceVoxel)
 				{
-					occupiedPositions.Add(newPos);
+					var oldVelocity = moveComponent.Velocity;
+					moveComponent.Velocity = null;
 
-					_grid.Swap(oldPos, newPos);
-					posComponent.Position = newPos;
-					_posMapper.Put(entityId, posComponent);
-
-					// Check all positions around this one to see if they may be impacted
-					// Including the new destination position
-					foreach (var offset in Offsets)
+					var newPos = Material.PotentialMove(_grid, oldPos);
+					if (newPos != null)
 					{
-						var testPos = new Position { X = oldPos.X + offset.X, Y = oldPos.Y + offset.Y };
-						if (_grid[testPos] != VoxelType.None)
+						var newVelocity = newPos - oldPos;
+
+						// If the last velocity is a valid lateral move, use it
+						if (oldVelocity.Y == 0 && newVelocity.Y == 0 && Material.IsValidMove(_grid, oldPos, oldPos + oldVelocity))  
 						{
-							potentialCheckPositions.Add(testPos);
+							newPos = oldPos + oldVelocity;
+							newVelocity = oldVelocity;
 						}
+
+						moveComponent.Velocity = newVelocity;
+					}
+					_movingVoxelMapper.Put(entityId, moveComponent);
+
+					if (moveComponent.Velocity != null)						
+					{
+						occupiedPositions.Add(newPos);
+
+						_grid.Swap(oldPos, newPos);
+						posComponent.Position = newPos;
+						_posMapper.Put(entityId, posComponent);
+
+						// Check all positions around this one to see if they may be impacted
+						// Including the new destination position
+						foreach (var offset in Offsets)
+						{
+							var testPos = new IntVector2 { X = oldPos.X + offset.X, Y = oldPos.Y + offset.Y };
+							if (_grid[testPos] != VoxelType.None)
+							{
+								potentialCheckPositions.Add(testPos);
+							}
+						}
+
+						continue;
 					}
 				}
-				else
-				{
-					// Move is no longer valid, remove it.
-					var entity = GetEntity(entityId);
-					entity.Detach<PositionComponent>();
-					entity.Detach<MovingVoxelComponent>();
-					entity.Destroy();
-				}
+
+				// Move is no longer valid, remove it.
+				var entity = GetEntity(entityId);
+				entity.Detach<PositionComponent>();
+				entity.Detach<MovingVoxelComponent>();
+				entity.Destroy();
 			}
 
 			foreach (var pos in potentialCheckPositions)
@@ -87,15 +109,15 @@ namespace SandSimulator.Systems
 			}
 		}
 
-		private Position[] Offsets = new Position[] {
-			new Position { X = -1, Y = 0 },
-			new Position { X = 0, Y = -1 },
-			new Position { X = 1, Y = 0 },
-			new Position { X = 0, Y = 1 },
-			new Position { X = -1, Y = -1 },
-			new Position { X = 1, Y = -1 },
-			new Position { X = -1, Y = 1 },
-			new Position { X = 1, Y = 1 },
+		private IntVector2[] Offsets = new IntVector2[] {
+			new IntVector2 { X = -1, Y = 0 },
+			new IntVector2 { X = 0, Y = -1 },
+			new IntVector2 { X = 1, Y = 0 },
+			new IntVector2 { X = 0, Y = 1 },
+			new IntVector2 { X = -1, Y = -1 },
+			new IntVector2 { X = 1, Y = -1 },
+			new IntVector2 { X = -1, Y = 1 },
+			new IntVector2 { X = 1, Y = 1 },
 			};
 	}
 }
