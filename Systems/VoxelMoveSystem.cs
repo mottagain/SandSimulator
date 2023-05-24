@@ -1,8 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using SandSimulator.Components;
 using SandSimulator.Voxel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -47,40 +49,22 @@ namespace SandSimulator.Systems
 				var oldPos = posComponent.Position;
 				var oldDirection = moveComponent.Direction;
 
-				var newPos = Material.PotentialMove(_grid, oldPos);
+				bool stillMoving = _grid[oldPos] == moveComponent.SourceVoxel;
+				IntVector2 endPos = new IntVector2 { X = 0, Y = 0 };
+				IntVector2 endDirection = new IntVector2 { X = 0, Y = 0 };
 
-				// Addresses corner case where swaping pixels on a successful move can move it out from underneath an active move.
-				if (_grid[oldPos] == moveComponent.SourceVoxel && newPos != null)
+				if (stillMoving)
 				{
-					var newDirection = newPos.Value - oldPos;
+					(stillMoving, endPos, endDirection) = MoveSteps((int)Math.Round(moveComponent.Speed), oldPos, oldDirection, occupiedPositions, potentialCheckPositions);
+				}
 
-					// If the last velocity is a valid lateral move, use it
-					if (oldDirection.Y == 0 && newDirection.Y == 0 && Material.IsValidMove(_grid, oldPos, oldPos + oldDirection))
-					{
-						newPos = oldPos + oldDirection;
-						newDirection = oldDirection;
-					}
-
-					// Update direction
-					moveComponent.Direction = newDirection;
-					_movingVoxelMapper.Put(entityId, moveComponent);
-
-					// Update position
-					occupiedPositions.Add(newPos.Value);
-					_grid.Swap(oldPos, newPos.Value);
-					posComponent.Position = newPos.Value;
+				if ( stillMoving)
+				{
+					posComponent.Position = endPos;
 					_posMapper.Put(entityId, posComponent);
 
-					// Check all positions around this one to see if they may be impacted
-					// Including the new destination position
-					foreach (var offset in Offsets)
-					{
-						var testPos = new IntVector2 { X = oldPos.X + offset.X, Y = oldPos.Y + offset.Y };
-						if (_grid[testPos] != VoxelType.None)
-						{
-							potentialCheckPositions.Add(testPos);
-						}
-					}
+					moveComponent.Direction = endDirection;
+					_movingVoxelMapper.Put(entityId, moveComponent);
 				}
 				else
 				{
@@ -101,6 +85,46 @@ namespace SandSimulator.Systems
 					entity.Attach(new CheckVoxelComponent());
 				}
 			}
+		}
+
+		private (bool stillMoving, IntVector2 endPos, IntVector2 endDirection) MoveSteps(int steps, IntVector2 startPos, IntVector2 startDirection, HashSet<IntVector2> occupiedPositions, HashSet<IntVector2> potentialCheckPositions)
+		{
+			var currentPos = startPos;
+			var currentDirection = startDirection;
+
+			for (int i = 0; i < steps; i++)
+			{
+				var newPos = Material.PotentialMove(_grid, currentPos);
+				if (newPos == null) return (false, currentPos, currentDirection);
+
+				var newDirection = newPos.Value - currentPos;
+
+				// If the last velocity is a valid lateral move, use it
+				if (currentDirection.Y == 0 && newDirection.Y == 0 && Material.IsValidMove(_grid, currentPos, currentPos + currentDirection))
+				{
+					newPos = currentPos + currentDirection;
+					newDirection = currentDirection;
+				}
+
+				occupiedPositions.Add(newPos.Value);
+				_grid.Swap(currentPos, newPos.Value);
+
+				// Check all positions around this one to see if they may be impacted
+				// Including the new destination position
+				foreach (var offset in Offsets)
+				{
+					var testPos = new IntVector2 { X = currentPos.X + offset.X, Y = currentPos.Y + offset.Y };
+					if (_grid[testPos] != VoxelType.None)
+					{
+						potentialCheckPositions.Add(testPos);
+					}
+				}
+
+				currentPos = newPos.Value;
+				currentDirection = newDirection;
+			}
+
+			return (true, currentPos, currentDirection);
 		}
 
 		private IntVector2[] Offsets = new IntVector2[] {

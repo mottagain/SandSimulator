@@ -39,6 +39,7 @@ namespace SandSimulator.Systems
 					entity.Attach(new MovingVoxelComponent { 
 						SourceVoxel = _grid[currentPos],
 						Direction = targetPos.Value - currentPos,
+						Speed = 2,
 					});;
 				}
 				else
