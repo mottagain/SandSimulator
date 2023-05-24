@@ -58,7 +58,7 @@ namespace SandSimulator.Systems
 						var newVelocity = newPos - oldPos;
 
 						// If the last velocity is a valid lateral move, use it
-						if (oldVelocity.Y == 0 && newVelocity.Y == 0 && Material.IsValidMove(_grid, oldPos, oldPos + oldVelocity))  
+						if (oldVelocity.Value.Y == 0 && newVelocity.Value.Y == 0 && Material.IsValidMove(_grid, oldPos, oldPos + oldVelocity.Value))
 						{
 							newPos = oldPos + oldVelocity;
 							newVelocity = oldVelocity;
@@ -70,10 +70,10 @@ namespace SandSimulator.Systems
 
 					if (moveComponent.Velocity != null)						
 					{
-						occupiedPositions.Add(newPos);
+						occupiedPositions.Add(newPos.Value);
 
-						_grid.Swap(oldPos, newPos);
-						posComponent.Position = newPos;
+						_grid.Swap(oldPos, newPos.Value);
+						posComponent.Position = newPos.Value;
 						_posMapper.Put(entityId, posComponent);
 
 						// Check all positions around this one to see if they may be impacted

@@ -80,8 +80,8 @@ namespace SandSimulator.Systems
 		{
 			_frameNum++;
 
-			var inspectPos = this.InspectState.TargetPosition;
-			if (inspectPos != null) {
+			if (this.InspectState.TargetPosition.HasValue) {
+				var inspectPos = this.InspectState.TargetPosition.Value;
 
 				this.InspectState.Frame = _frameNum;
 				this.InspectState.PositionData.Clear();
