@@ -49,29 +49,26 @@ namespace SandSimulator.Systems
 				// Addresses corner case where swaping pixels on a successful move can move it out from underneath an active move.
 				if (_grid[oldPos] == moveComponent.SourceVoxel)
 				{
-					var oldVelocity = moveComponent.Velocity;
-					moveComponent.Velocity = null;
+					var oldDirection = moveComponent.Direction;
 
 					var newPos = Material.PotentialMove(_grid, oldPos);
 					if (newPos != null)
 					{
-						var newVelocity = newPos - oldPos;
+						var newDirection = newPos.Value - oldPos;
 
 						// If the last velocity is a valid lateral move, use it
-						if (oldVelocity.Value.Y == 0 && newVelocity.Value.Y == 0 && Material.IsValidMove(_grid, oldPos, oldPos + oldVelocity.Value))
+						if (oldDirection.Y == 0 && newDirection.Y == 0 && Material.IsValidMove(_grid, oldPos, oldPos + oldDirection))
 						{
-							newPos = oldPos + oldVelocity;
-							newVelocity = oldVelocity;
+							newPos = oldPos + oldDirection;
+							newDirection = oldDirection;
 						}
 
-						moveComponent.Velocity = newVelocity;
-					}
-					_movingVoxelMapper.Put(entityId, moveComponent);
+						// Update direction
+						moveComponent.Direction = newDirection;
+						_movingVoxelMapper.Put(entityId, moveComponent);
 
-					if (moveComponent.Velocity != null)						
-					{
+						// Update position
 						occupiedPositions.Add(newPos.Value);
-
 						_grid.Swap(oldPos, newPos.Value);
 						posComponent.Position = newPos.Value;
 						_posMapper.Put(entityId, posComponent);
