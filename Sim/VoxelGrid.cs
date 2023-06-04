@@ -39,7 +39,7 @@ namespace SandSimulator.Sim
 		{
 			get
 			{
-				Voxel search = new Voxel();
+				Voxel search = new Voxel(VoxelType.None);
 				search.Position = pos;
 
 				Voxel result;
@@ -71,7 +71,7 @@ namespace SandSimulator.Sim
 
 		public void Swap(IntVector2 a, IntVector2 b)
 		{
-			Voxel search = new Voxel();
+			Voxel search = new Voxel(VoxelType.None);
 
 			search.Position = a;
 			Voxel atPosA;

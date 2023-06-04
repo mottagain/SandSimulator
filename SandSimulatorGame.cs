@@ -58,7 +58,11 @@ namespace SandSimulator
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.G))
 			{
-				this.CreateVoxelAtCursor<SmokeVoxel>();
+				this.CreateVoxelAtCursor<SteamVoxel>();
+			}
+			if (Keyboard.GetState().IsKeyDown(Keys.R))
+			{
+				this.CreateVoxelAtCursor<RockVoxel>();
 			}
 
 			this._simulation.Step();

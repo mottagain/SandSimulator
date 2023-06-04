@@ -5,6 +5,15 @@ using System.Collections.Generic;
 
 namespace SandSimulator.Sim
 {
+	internal enum VoxelType : byte
+	{
+		None,
+		Rock,
+		Sand,
+		Water,
+		Steam,
+	};
+
 	internal class VoxelComparerByPosition : IComparer<Voxel>
 	{
 		public int Compare(Voxel lhs, Voxel rhs)
@@ -19,23 +28,49 @@ namespace SandSimulator.Sim
 
 	internal class Voxel
 	{
+		public Voxel(VoxelType type) {
+			this.Type = type;
+		}
+
+		public VoxelType Type { get; set; }
+
 		public IntVector2 Position { get; set; }
 
-		public Color Color { get; set; }
+		public Color Color
+		{ 
+			get 
+			{
+				return _voxelColors[(int)this.Type];
+			}
+		}
 
 		public virtual void Step(VoxelGrid grid)
 		{
 		}
 
 		protected static Random _random = new Random();
+
+		private static Color[] _voxelColors = new Color[] { 
+			Color.Black,		// None
+			Color.Gray, 		// Rock
+			Color.Yellow, 		// Sand
+			Color.Blue,			// Water
+			Color.LightGray  	// Steam
+		};
 	}
 
 	internal class SolidVoxel : Voxel
 	{
-
+		public SolidVoxel(VoxelType type) : base(type) 
+		{
+		}
 	}
 	internal class LiquidVoxel : Voxel
 	{
+		public LiquidVoxel(VoxelType type) : base(type) 
+		{
+		}
+
 		public override void Step(VoxelGrid grid)
 		{
 			var targetPos = new IntVector2 { X = this.Position.X, Y = this.Position.Y - 1 };
@@ -70,6 +105,10 @@ namespace SandSimulator.Sim
 
 	internal class GasVoxel : Voxel
 	{
+		public GasVoxel(VoxelType type) : base(type) 
+		{
+		}
+
 		public override void Step(VoxelGrid grid)
 		{
 			var targetPos = new IntVector2 { X = this.Position.X, Y = this.Position.Y + 1 };
@@ -104,6 +143,10 @@ namespace SandSimulator.Sim
 
 	internal class MovableSolidVoxel : SolidVoxel
 	{
+		public MovableSolidVoxel(VoxelType type) : base(type) 
+		{
+		}
+
 		public override void Step(VoxelGrid grid)
 		{
 			var targetPos = new IntVector2 { X = this.Position.X, Y = this.Position.Y - 1 };
@@ -138,39 +181,36 @@ namespace SandSimulator.Sim
 
 	internal class ImmovableSolidVoxel : SolidVoxel
 	{
-
+		public ImmovableSolidVoxel(VoxelType type) : base(type) 
+		{
+		}
 	}
 
 	internal class WaterVoxel : LiquidVoxel
 	{
-		public WaterVoxel()
+		public WaterVoxel() : base(VoxelType.Water)
 		{
-			this.Color = Color.Blue;
 		}
 	}
 
 	internal class SandVoxel : MovableSolidVoxel
 	{
-		public SandVoxel() 
+		public SandVoxel() : base(VoxelType.Sand)
 		{
-			this.Color = Color.Yellow;
 		}
 	}
 
 	internal class RockVoxel : ImmovableSolidVoxel
 	{
-		public RockVoxel()
+		public RockVoxel() : base(VoxelType.Rock)
 		{
-			this.Color = Color.Gray;
 		}
 	}
 
-	internal class SmokeVoxel : GasVoxel
+	internal class SteamVoxel : GasVoxel
 	{
-		public SmokeVoxel()
+		public SteamVoxel() : base(VoxelType.Steam)
 		{
-			this.Color = Color.LightGray;
 		}
 	}
-
 }
