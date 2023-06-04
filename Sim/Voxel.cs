@@ -57,6 +57,14 @@ namespace SandSimulator.Sim
 			Color.Blue,			// Water
 			Color.LightGray  	// Steam
 		};
+
+		protected static IntVector2[] _primaryOffsets = new IntVector2[] {
+			new IntVector2 { X = 0, Y = 0 },	// None
+			new IntVector2 { X = 0, Y = 0 },	// Rock
+			new IntVector2 { X = 0, Y = -1 },	// Sand
+			new IntVector2 { X = 0, Y = -1 },	// Water
+			new IntVector2 { X = 0, Y = 1 },	// Steam
+		};
 	}
 
 	internal class SolidVoxel : Voxel
@@ -73,7 +81,8 @@ namespace SandSimulator.Sim
 
 		public override void Step(VoxelGrid grid)
 		{
-			var targetPos = new IntVector2 { X = this.Position.X, Y = this.Position.Y - 1 };
+			var primaryOffset = _primaryOffsets[(int)this.Type];
+			var targetPos = this.Position + primaryOffset;
 			var targetCell = grid[targetPos];
 
 			if (targetCell == null)
@@ -111,7 +120,8 @@ namespace SandSimulator.Sim
 
 		public override void Step(VoxelGrid grid)
 		{
-			var targetPos = new IntVector2 { X = this.Position.X, Y = this.Position.Y + 1 };
+			var primaryOffset = _primaryOffsets[(int)this.Type];
+			var targetPos = this.Position + primaryOffset;
 			var targetCell = grid[targetPos];
 
 			if (targetCell == null)
@@ -149,7 +159,8 @@ namespace SandSimulator.Sim
 
 		public override void Step(VoxelGrid grid)
 		{
-			var targetPos = new IntVector2 { X = this.Position.X, Y = this.Position.Y - 1 };
+			var primaryOffset = _primaryOffsets[(int)this.Type];
+			var targetPos = this.Position + primaryOffset;
 			var targetCell = grid[targetPos];
 
 			if (targetCell == null || targetCell is LiquidVoxel)
