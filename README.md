@@ -1,10 +1,12 @@
 # SandSimulator
-A simple ECS based voxel sand simulator in C#.
+A simple voxel "falling sand simulator" in C#.
 
 
 # TODO List:
-* BUG: Dropping sand creates alternating sand and air causing.  Move of two positions each move? Inability to place every other frame?
-* Add velocity of movement
+* Add velocity
+* Add momentum
+* Add friction
+* Add gravity
 * Add more natural stacking
 * Wood
 * Acid

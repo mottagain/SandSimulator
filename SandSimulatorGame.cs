@@ -1,10 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.Entities;
-using SandSimulator.Systems;
-using SandSimulator.Voxel;
-using System.Diagnostics;
+using MonoGame.Extended;
+using SandSimulator.Sim;
 
 namespace SandSimulator
 {
@@ -12,20 +10,14 @@ namespace SandSimulator
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
-		private World _world;
 		private VoxelSimulation _simulation;
-		private Statistics _statistics;
-		private InspectState _inspectState;
 
 		public SandSimulatorGame()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			_graphics.PreferredBackBufferWidth = 1600;
 			_graphics.PreferredBackBufferHeight = 900;
-			_world = null;
 			_simulation = null;
-			_statistics = new Statistics();
-			_inspectState = new InspectState();
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
 		}
@@ -34,21 +26,11 @@ namespace SandSimulator
 		{
 			var grid = new VoxelGrid(160, 90);
 
-			_world = new WorldBuilder()
-				.AddSystem(new StatisticsSystem(grid, _statistics))
-				.AddSystem(new InspectSystem(grid, _inspectState))
-				.AddSystem(new VoxelMoveSystem(grid))
-				.AddSystem(new CheckForActionSystem(grid))
-				.AddSystem(new VoxelRenderSystem(GraphicsDevice, grid))
-				.Build();
-
-			Components.Add(_world);
-
-			_simulation = new VoxelSimulation(grid, _world.CreateEntity);
+			_simulation = new VoxelSimulation(grid);
 
 			for (int i = 0; i < _simulation.Width; i++)
 			{
-				_simulation.AddVoxel(i, 0, VoxelType.Rock);
+				_simulation.AddVoxel<RockVoxel>(new IntVector2 { X = i, Y = 0 });
 			}
 
 			base.Initialize();
@@ -68,57 +50,50 @@ namespace SandSimulator
 
 			if (Keyboard.GetState().IsKeyDown(Keys.S))
 			{
-				CreateVoxelAtCursor(VoxelType.Sand);
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.R))
-			{
-				CreateVoxelAtCursor(VoxelType.Rock);
+				this.CreateVoxelAtCursor<SandVoxel>();
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
 			{
-				CreateVoxelAtCursor(VoxelType.Water);
+				this.CreateVoxelAtCursor<WaterVoxel>();
 			}
-			if (Keyboard.GetState().IsKeyDown(Keys.D))
+			if (Keyboard.GetState().IsKeyDown(Keys.G))
 			{
-				Debug.WriteLine("{0}: {1} entities, {2} Position Components, {3} Check Voxel Components, {4} Moving Voxel Components tracked.", 
-					_statistics.Frame, _statistics.Entities, _statistics.PositionComponents, _statistics.CheckVoxelComponents, _statistics.MovingVoxelComponents);
+				this.CreateVoxelAtCursor<SmokeVoxel>();
 			}
 
-			if (Keyboard.GetState().IsKeyDown(Keys.I))
-			{
-				if (_inspectState.TargetPosition != null)
-				{
-					Debug.WriteLine($"{_inspectState}");
-				}
-				else
-				{
-					_inspectState.TargetPosition = GetCursorPosInGrid();
-				}
-			}
-			else
-			{
-				_inspectState.TargetPosition = null;
-			}
-
-			_world.Update(gameTime);
+			this._simulation.Step();
 
 			base.Update(gameTime);
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
-			_world.Draw(gameTime);
+			GraphicsDevice.Clear(Color.Black);
+
+			_spriteBatch.Begin();
+
+			var cellWidth = GraphicsDevice.Viewport.Width / _simulation.Width;
+			var cellHeight = GraphicsDevice.Viewport.Height / _simulation.Height;
+
+			foreach (var voxel in this._simulation.Grid.Traverse())
+			{
+				var posX = voxel.Position.X * cellWidth;
+				var posY = GraphicsDevice.Viewport.Height - (voxel.Position.Y + 1) * cellHeight;
+				_spriteBatch.FillRectangle(new Rectangle(posX, posY, cellWidth, cellHeight), voxel.Color);
+			}
+
+			_spriteBatch.End();
 
 			base.Draw(gameTime);
 		}
 
-		private void CreateVoxelAtCursor(VoxelType voxelType)
+		private void CreateVoxelAtCursor<T>() where T : Voxel, new()
 		{
 			var pos = GetCursorPosInGrid();
 
-			if (_simulation.Grid[pos] == VoxelType.None)
+			if (_simulation.Grid[pos] == null)
 			{
-				_simulation.AddVoxel(pos.X, pos.Y, voxelType);
+				_simulation.AddVoxel<T>(pos);
 			}
 		}
 

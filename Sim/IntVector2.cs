@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 
-namespace SandSimulator.Voxel
+namespace SandSimulator.Sim
 {
 	public struct IntVector2 : IEquatable<IntVector2>, IComparable<IntVector2>
 	{
