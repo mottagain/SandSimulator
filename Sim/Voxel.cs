@@ -133,62 +133,28 @@ namespace SandSimulator.Sim
 		};
 	}
 
-	internal class SolidVoxel : Voxel
-	{
-		public SolidVoxel(VoxelType type) : base(type) 
-		{
-		}
-	}
-	internal class LiquidVoxel : Voxel
-	{
-		public LiquidVoxel(VoxelType type) : base(type) 
-		{
-		}
-	}
-
-	internal class GasVoxel : Voxel
-	{
-		public GasVoxel(VoxelType type) : base(type) 
-		{
-		}
-	}
-
-	internal class MovableSolidVoxel : SolidVoxel
-	{
-		public MovableSolidVoxel(VoxelType type) : base(type) 
-		{
-		}
-	}
-
-	internal class ImmovableSolidVoxel : SolidVoxel
-	{
-		public ImmovableSolidVoxel(VoxelType type) : base(type) 
-		{
-		}
-	}
-
-	internal class WaterVoxel : LiquidVoxel
+	internal class WaterVoxel : Voxel
 	{
 		public WaterVoxel() : base(VoxelType.Water)
 		{
 		}
 	}
 
-	internal class SandVoxel : MovableSolidVoxel
+	internal class SandVoxel : Voxel
 	{
 		public SandVoxel() : base(VoxelType.Sand)
 		{
 		}
 	}
 
-	internal class RockVoxel : ImmovableSolidVoxel
+	internal class RockVoxel : Voxel
 	{
 		public RockVoxel() : base(VoxelType.Rock)
 		{
 		}
 	}
 
-	internal class SteamVoxel : GasVoxel
+	internal class SteamVoxel : Voxel
 	{
 		public SteamVoxel() : base(VoxelType.Steam)
 		{

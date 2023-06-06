@@ -12,9 +12,12 @@ A simple voxel "falling sand simulator" in C#.
 * Acid
 * Gas
 * Fire
-* Embers
+* Ash
+* Color variation / prettier
 * Tiling
+* Background
 * Center Position that can be moved
-* Proceedural world gen
+* Paralax scolling
 * Ridgid body & Physics
 * Player
+* Proceedural world gen
