@@ -30,9 +30,12 @@ namespace SandSimulator.Sim
 	{
 		public Voxel(VoxelType type) {
 			this.Type = type;
+			this.Speed = _startingSpeed[(int)type];
 		}
 
 		public VoxelType Type { get; set; }
+
+		public byte Speed { get; set; }
 
 		public IntVector2 Position { get; set; }
 
@@ -46,58 +49,60 @@ namespace SandSimulator.Sim
 
 		public virtual void Step(VoxelGrid grid)
 		{
-			var primaryOffset = _primaryOffsets[(int)this.Type];
-			var secondaryOffsets = _secondaryOffsets[(int)this.Type];
+			for (int step = 0; step < this.Speed; step++) {
 
-			var targetPos = this.Position + primaryOffset;
-			var targetCell = grid[targetPos]; // TODO: Chagne grid to return VoxelType.None instead of null
-			var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
+				var primaryOffset = _primaryOffsets[(int)this.Type];
+				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
 
-			if (_swapsWith[(int)this.Type][(int)targetType])
-			{
-				grid.Swap(this.Position, targetPos);
-			}
-			else
-			{
-				var handleOffset = (IntVector2 offset) => {
-					targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
-					targetCell = grid[targetPos];
-					targetType = targetCell != null ? targetCell.Type : VoxelType.None;
+				var targetPos = this.Position + primaryOffset;
+				var targetCell = grid[targetPos]; // TODO: Chagne grid to return VoxelType.None instead of null
+				var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
 
-					if (_swapsWith[(int)this.Type][(int)targetType])
-					{
-						grid.Swap(this.Position, targetPos);
-						return false;
-					}
-					return true;
-				};
-
-				int flip = Voxel._random.Next(0, 2);
-				if (flip == 0)
+				if (_swapsWith[(int)this.Type][(int)targetType])
 				{
-					foreach (var offset in secondaryOffsets)
-					{
-						if (!handleOffset(offset))
-						{
-							break;
-						}
-					}
+					grid.Swap(this.Position, targetPos);
 				}
 				else
 				{
-					for (int i = secondaryOffsets.Length - 1; i >= 0; i--)
-					{
-						if (!handleOffset(secondaryOffsets[i]))
+					var handleOffset = (IntVector2 offset) => {
+						targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
+						targetCell = grid[targetPos];
+						targetType = targetCell != null ? targetCell.Type : VoxelType.None;
+
+						if (_swapsWith[(int)this.Type][(int)targetType])
 						{
-							break;
+							grid.Swap(this.Position, targetPos);
+							return false;
+						}
+						return true;
+					};
+
+					int flip = Voxel._random.Next(0, 2);
+					if (flip == 0)
+					{
+						foreach (var offset in secondaryOffsets)
+						{
+							if (!handleOffset(offset))
+							{
+								break;
+							}
+						}
+					}
+					else
+					{
+						for (int i = secondaryOffsets.Length - 1; i >= 0; i--)
+						{
+							if (!handleOffset(secondaryOffsets[i]))
+							{
+								break;
+							}
 						}
 					}
 				}
 			}
 		}
 
-
-		protected static Random _random = new Random();
+		private static Random _random = new Random();
 
 		private static Color[] _voxelColors = new Color[] { 
 			Color.Black,		// None
@@ -107,7 +112,15 @@ namespace SandSimulator.Sim
 			Color.LightGray  	// Steam
 		};
 
-		protected static IntVector2[] _primaryOffsets = new IntVector2[] {
+		private static byte[] _startingSpeed = new byte[] {
+			0,	// None
+			0,	// Rock
+			2,	// Sand
+			1,	// Water
+			1,	// Steam
+		};
+
+		private static IntVector2[] _primaryOffsets = new IntVector2[] {
 			new IntVector2 { X = 0, Y = 0 },	// None
 			new IntVector2 { X = 0, Y = 0 },	// Rock
 			new IntVector2 { X = 0, Y = -1 },	// Sand
@@ -115,7 +128,7 @@ namespace SandSimulator.Sim
 			new IntVector2 { X = 0, Y = 1 },	// Steam
 		};
 
-		protected static IntVector2[][] _secondaryOffsets = new IntVector2[][] {
+		private static IntVector2[][] _secondaryOffsets = new IntVector2[][] {
 			new IntVector2[] { },																		// None
 			new IntVector2[] { },																		// Rock
 			new IntVector2[] { new IntVector2 { X = -1, Y = -1 }, new IntVector2 { X = 1, Y = -1 } },	// Sand
@@ -123,7 +136,7 @@ namespace SandSimulator.Sim
 			new IntVector2[] { new IntVector2 { X = -1, Y = 0 }, new IntVector2 { X = 1, Y = 0 } },		// Steam
 		};
 
-		protected static bool[][] _swapsWith = new bool[][] {
+		private static bool[][] _swapsWith = new bool[][] {
 					 //  None,  Rock,  Sand,  Water, Steam
 			new bool[] { false, false, false, false, false },	// None
 			new bool[] { false, false, false, false, false },	// Rock
