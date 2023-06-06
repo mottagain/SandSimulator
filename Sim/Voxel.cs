@@ -79,7 +79,7 @@ namespace SandSimulator.Sim
 
 		private bool ApplyOffset(VoxelGrid grid, IntVector2 offset) 
 		{
-			var targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
+			var targetPos = this.Position + offset;
 			var targetCell = grid[targetPos];
 			var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
 
