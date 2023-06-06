@@ -52,52 +52,38 @@ namespace SandSimulator.Sim
 
 		public void Step(VoxelGrid grid)
 		{
-			for (int step = 0; step < this.Speed; step++) {
-
-				var primaryOffset = _primaryOffsets[(int)this.Type];
-				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
-
-				var targetPos = this.Position + primaryOffset;
-				var targetCell = grid[targetPos]; // TODO: Chagne grid to return VoxelType.None instead of null
+			var applyOffset = (IntVector2 offset) => {
+				var targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
+				var targetCell = grid[targetPos];
 				var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
 
 				if (_swapsWith[(int)this.Type][(int)targetType])
 				{
 					grid.Swap(this.Position, targetPos);
+					return true;
 				}
-				else
-				{
-					var handleOffset = (IntVector2 offset) => {
-						targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
-						targetCell = grid[targetPos];
-						targetType = targetCell != null ? targetCell.Type : VoxelType.None;
+				return false;
+			};
 
-						if (_swapsWith[(int)this.Type][(int)targetType])
-						{
-							grid.Swap(this.Position, targetPos);
-							return false;
-						}
-						return true;
-					};
+			for (int step = 0; step < this.Speed; step++) {
 
+				var primaryOffset = _primaryOffsets[(int)this.Type];
+				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
+
+				if (!applyOffset(primaryOffset)) {
+					
 					if (this.Momentum)
 					{
 						foreach (var offset in secondaryOffsets)
 						{
-							if (!handleOffset(offset))
-							{
-								break;
-							}
+							if (applyOffset(offset)) break;
 						}
 					}
 					else
 					{
 						for (int i = secondaryOffsets.Length - 1; i >= 0; i--)
 						{
-							if (!handleOffset(secondaryOffsets[i]))
-							{
-								break;
-							}
+							if (applyOffset(secondaryOffsets[i])) break;
 						}
 					}
 				}
