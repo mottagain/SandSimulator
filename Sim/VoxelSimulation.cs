@@ -15,9 +15,9 @@ namespace SandSimulator.Sim
 
 		public VoxelGrid Grid { get { return _grid; } }
 
-		public void AddVoxel<T>(IntVector2 pos) where T : Voxel, new()
+		public void AddVoxel(VoxelType type, IntVector2 pos)
 		{
-			var voxel = new T();
+			var voxel = new Voxel(type);
 			voxel.Position = pos;
 			this.Grid[pos] = voxel;
 		}

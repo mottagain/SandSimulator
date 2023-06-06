@@ -30,7 +30,7 @@ namespace SandSimulator
 
 			for (int i = 0; i < _simulation.Width; i++)
 			{
-				_simulation.AddVoxel<RockVoxel>(new IntVector2 { X = i, Y = 0 });
+				_simulation.AddVoxel(VoxelType.Rock, new IntVector2 { X = i, Y = 0 });
 			}
 
 			base.Initialize();
@@ -50,19 +50,19 @@ namespace SandSimulator
 
 			if (Keyboard.GetState().IsKeyDown(Keys.S))
 			{
-				this.CreateVoxelAtCursor<SandVoxel>();
+				this.CreateVoxelAtCursor(VoxelType.Sand);
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
 			{
-				this.CreateVoxelAtCursor<WaterVoxel>();
+				this.CreateVoxelAtCursor(VoxelType.Water);
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.G))
 			{
-				this.CreateVoxelAtCursor<SteamVoxel>();
+				this.CreateVoxelAtCursor(VoxelType.Steam);
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.R))
 			{
-				this.CreateVoxelAtCursor<RockVoxel>();
+				this.CreateVoxelAtCursor(VoxelType.Rock);
 			}
 
 			this._simulation.Step();
@@ -91,13 +91,13 @@ namespace SandSimulator
 			base.Draw(gameTime);
 		}
 
-		private void CreateVoxelAtCursor<T>() where T : Voxel, new()
+		private void CreateVoxelAtCursor(VoxelType type)
 		{
 			var pos = GetCursorPosInGrid();
 
 			if (_simulation.Grid[pos] == null)
 			{
-				_simulation.AddVoxel<T>(pos);
+				_simulation.AddVoxel(type, pos);
 			}
 		}
 

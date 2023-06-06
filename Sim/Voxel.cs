@@ -50,7 +50,7 @@ namespace SandSimulator.Sim
 			}
 		}
 
-		public virtual void Step(VoxelGrid grid)
+		public void Step(VoxelGrid grid)
 		{
 			for (int step = 0; step < this.Speed; step++) {
 
@@ -146,33 +146,5 @@ namespace SandSimulator.Sim
 			new bool[] { true,  false, false, false, true },	// Water
 			new bool[] { true,  false, false, false, false },	// Steam
 		};
-	}
-
-	internal class WaterVoxel : Voxel
-	{
-		public WaterVoxel() : base(VoxelType.Water)
-		{
-		}
-	}
-
-	internal class SandVoxel : Voxel
-	{
-		public SandVoxel() : base(VoxelType.Sand)
-		{
-		}
-	}
-
-	internal class RockVoxel : Voxel
-	{
-		public RockVoxel() : base(VoxelType.Rock)
-		{
-		}
-	}
-
-	internal class SteamVoxel : Voxel
-	{
-		public SteamVoxel() : base(VoxelType.Steam)
-		{
-		}
 	}
 }
