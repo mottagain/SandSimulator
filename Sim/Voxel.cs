@@ -52,42 +52,43 @@ namespace SandSimulator.Sim
 
 		public void Step(VoxelGrid grid)
 		{
-			var applyOffset = (IntVector2 offset) => {
-				var targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
-				var targetCell = grid[targetPos];
-				var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
-
-				if (_swapsWith[(int)this.Type][(int)targetType])
-				{
-					grid.Swap(this.Position, targetPos);
-					return true;
-				}
-				return false;
-			};
-
 			for (int step = 0; step < this.Speed; step++) {
 
 				var primaryOffset = _primaryOffsets[(int)this.Type];
 				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
 
-				if (!applyOffset(primaryOffset)) {
+				if (!this.ApplyOffset(grid, primaryOffset)) {
 					
 					if (this.Momentum)
 					{
 						foreach (var offset in secondaryOffsets)
 						{
-							if (applyOffset(offset)) break;
+							if (this.ApplyOffset(grid, offset)) break;
 						}
 					}
 					else
 					{
 						for (int i = secondaryOffsets.Length - 1; i >= 0; i--)
 						{
-							if (applyOffset(secondaryOffsets[i])) break;
+							if (this.ApplyOffset(grid, secondaryOffsets[i])) break;
 						}
 					}
 				}
 			}
+		}
+
+		private bool ApplyOffset(VoxelGrid grid, IntVector2 offset) 
+		{
+			var targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
+			var targetCell = grid[targetPos];
+			var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
+
+			if (_swapsWith[(int)this.Type][(int)targetType])
+			{
+				grid.Swap(this.Position, targetPos);
+				return true;
+			}
+			return false;
 		}
 
 		private static Random _random = new Random();
