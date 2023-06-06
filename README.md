@@ -3,7 +3,6 @@ A simple voxel "falling sand simulator" in C#.
 
 
 # TODO List:
-* Add momentum
 * Add friction
 * Add gravity
 * Add more natural stacking

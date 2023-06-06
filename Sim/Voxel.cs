@@ -31,11 +31,14 @@ namespace SandSimulator.Sim
 		public Voxel(VoxelType type) {
 			this.Type = type;
 			this.Speed = _startingSpeed[(int)type];
+			this.Momentum = _random.Next(0, 2) == 0;
 		}
 
 		public VoxelType Type { get; set; }
 
 		public byte Speed { get; set; }
+
+		public bool Momentum { get; set;}
 
 		public IntVector2 Position { get; set; }
 
@@ -77,8 +80,7 @@ namespace SandSimulator.Sim
 						return true;
 					};
 
-					int flip = Voxel._random.Next(0, 2);
-					if (flip == 0)
+					if (this.Momentum)
 					{
 						foreach (var offset in secondaryOffsets)
 						{
