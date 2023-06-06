@@ -50,9 +50,10 @@ namespace SandSimulator.Sim
 			var secondaryOffsets = _secondaryOffsets[(int)this.Type];
 
 			var targetPos = this.Position + primaryOffset;
-			var targetCell = grid[targetPos];
+			var targetCell = grid[targetPos]; // TODO: Chagne grid to return VoxelType.None instead of null
+			var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
 
-			if (targetCell == null)
+			if (_swapsWith[(int)this.Type][(int)targetType])
 			{
 				grid.Swap(this.Position, targetPos);
 			}
@@ -61,8 +62,9 @@ namespace SandSimulator.Sim
 				var handleOffset = (IntVector2 offset) => {
 					targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
 					targetCell = grid[targetPos];
+					targetType = targetCell != null ? targetCell.Type : VoxelType.None;
 
-					if (targetCell == null)
+					if (_swapsWith[(int)this.Type][(int)targetType])
 					{
 						grid.Swap(this.Position, targetPos);
 						return false;
@@ -120,6 +122,15 @@ namespace SandSimulator.Sim
 			new IntVector2[] { new IntVector2 { X = -1, Y = 0 }, new IntVector2 { X = 1, Y = 0 } },		// Water
 			new IntVector2[] { new IntVector2 { X = -1, Y = 0 }, new IntVector2 { X = 1, Y = 0 } },		// Steam
 		};
+
+		protected static bool[][] _swapsWith = new bool[][] {
+					 //  None,  Rock,  Sand,  Water, Steam
+			new bool[] { false, false, false, false, false },	// None
+			new bool[] { false, false, false, false, false },	// Rock
+			new bool[] { true,  false, false, true,  true  },	// Sand
+			new bool[] { true,  false, false, false, true },	// Water
+			new bool[] { true,  false, false, false, false },	// Steam
+		};
 	}
 
 	internal class SolidVoxel : Voxel
@@ -147,38 +158,6 @@ namespace SandSimulator.Sim
 		public MovableSolidVoxel(VoxelType type) : base(type) 
 		{
 		}
-
-		public override void Step(VoxelGrid grid)
-		{
-			var primaryOffset = _primaryOffsets[(int)this.Type];
-			var targetPos = this.Position + primaryOffset;
-			var targetCell = grid[targetPos];
-
-			if (targetCell == null || targetCell is LiquidVoxel)
-			{
-				grid.Swap(this.Position, targetPos);
-			}
-			else
-			{
-				int flip = Voxel._random.Next(0, 2);
-				var offsets = (flip == 0)? _offsets : _reverseOffsets;
-
-				foreach (var offset in offsets)
-				{
-					targetPos = new IntVector2 { X = this.Position.X + offset.X, Y = this.Position.Y + offset.Y };
-					targetCell = grid[targetPos];
-
-					if (targetCell == null || targetCell is LiquidVoxel)
-					{
-						grid.Swap(this.Position, targetPos);
-						break;
-					}
-				}
-			}
-		}
-
-		private static IntVector2[] _offsets = new IntVector2[] { new IntVector2 { X = -1, Y = -1 }, new IntVector2 { X = 1, Y = -1 } };
-		private static IntVector2[] _reverseOffsets = new IntVector2[] { new IntVector2 { X = 1, Y = -1 }, new IntVector2 { X = -1, Y = -1 } };
 	}
 
 	internal class ImmovableSolidVoxel : SolidVoxel
