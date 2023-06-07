@@ -36,7 +36,7 @@ namespace SandSimulator.Sim
 
 		public VoxelType Type { get; set; }
 
-		public byte Speed { get; set; }
+		public float Speed { get; set; }
 
 		public bool Momentum { get; set;}
 
@@ -52,7 +52,7 @@ namespace SandSimulator.Sim
 
 		public void Step(VoxelGrid grid)
 		{
-			for (int step = 0; step < this.Speed; step++) {
+			for (int step = 0; step < (int)Math.Round(this.Speed); step++) {
 
 				var primaryOffset = _primaryOffsets[(int)this.Type];
 				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
@@ -85,7 +85,20 @@ namespace SandSimulator.Sim
 
 			if (_swapsWith[(int)this.Type][(int)targetType])
 			{
+				if (targetType != VoxelType.None)
+				{
+					targetCell.Speed = _startingSpeed[(int)targetType];
+					targetCell.Momentum = _random.Next(0, 2) == 0;
+				}
+
 				grid.Swap(this.Position, targetPos);
+
+				var belowVoxel = this.Position + new IntVector2 { X = 0, Y = -1 };
+				var belowCell = grid[belowVoxel];
+				var belowType = belowCell != null ? belowCell.Type : VoxelType.None;
+				var friction = _friction[(int)this.Type][(int)belowType];
+				this.Speed -= friction;
+				
 				return true;
 			}
 			return false;
@@ -132,6 +145,15 @@ namespace SandSimulator.Sim
 			new bool[] { true,  false, false, true,  true  },	// Sand
 			new bool[] { true,  false, false, false, true },	// Water
 			new bool[] { true,  false, false, false, false },	// Steam
+		};
+
+		private static float[][] _friction = new float[][] {
+					 //   None, Rock,  Sand,  Water, Steam
+			new float[] { 0.0f,  0.0f,  0.0f,  0.0f,  0.0f },	// None
+			new float[] { 0.0f,  0.0f,  0.0f,  0.0f,  0.0f },	// Rock
+			new float[] { 0.0f, 0.06f, 0.05f,  0.0f,  0.0f },	// Sand
+			new float[] { 0.0f,0.005f,0.005f,0.005f,  0.0f },	// Water
+			new float[] { 0.0f, 0.01f,  0.0f,  0.0f,  0.0f },	// Steam
 		};
 	}
 }
