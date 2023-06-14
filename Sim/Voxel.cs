@@ -31,12 +31,15 @@ namespace SandSimulator.Sim
 		public Voxel(VoxelType type) {
 			this.Type = type;
 			this.Speed = _startingSpeed[(int)type];
+			this.FreeFall = true;
 			this.Momentum = _random.Next(0, 2) == 0;
 		}
 
 		public VoxelType Type { get; set; }
 
 		public float Speed { get; set; }
+
+		public bool FreeFall { get; set; }
 
 		public bool Momentum { get; set;}
 
@@ -50,31 +53,55 @@ namespace SandSimulator.Sim
 			}
 		}
 
-		public void Step(VoxelGrid grid)
+		public bool Step(VoxelGrid grid)
 		{
-			for (int step = 0; step < (int)Math.Round(this.Speed); step++) {
+			bool moved = false;
+
+			if (this.FreeFall)
+			{
+				this.Speed += _gravity[(int)this.Type];
+			}
+
+			for (int step = 0; step < (int)Math.Round(this.Speed); step++) 
+			{
 
 				var primaryOffset = _primaryOffsets[(int)this.Type];
 				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
 
-				if (!this.ApplyOffset(grid, primaryOffset)) {
+				if (this.ApplyOffset(grid, primaryOffset))
+				{
+					moved = true;
+					this.FreeFall = true;
+				} 
+				else
+				{
+					this.FreeFall = false;
 					
 					if (this.Momentum)
 					{
 						foreach (var offset in secondaryOffsets)
 						{
-							if (this.ApplyOffset(grid, offset)) break;
+							if (this.ApplyOffset(grid, offset))
+							{
+								moved = true;
+								break;
+							}
 						}
 					}
 					else
 					{
 						for (int i = secondaryOffsets.Length - 1; i >= 0; i--)
 						{
-							if (this.ApplyOffset(grid, secondaryOffsets[i])) break;
+							if (this.ApplyOffset(grid, secondaryOffsets[i]))
+							{
+								moved = true;
+								break;
+							}
 						}
 					}
 				}
 			}
+			return moved;
 		}
 
 		private bool ApplyOffset(VoxelGrid grid, IntVector2 offset) 
@@ -89,6 +116,7 @@ namespace SandSimulator.Sim
 				{
 					targetCell.Speed = _startingSpeed[(int)targetType];
 					targetCell.Momentum = _random.Next(0, 2) == 0;
+					targetCell.FreeFall = true;
 				}
 
 				grid.Swap(this.Position, targetPos);
@@ -117,9 +145,17 @@ namespace SandSimulator.Sim
 		private static byte[] _startingSpeed = new byte[] {
 			0,	// None
 			0,	// Rock
-			2,	// Sand
-			1,	// Water
+			0,	// Sand
+			0,	// Water
 			1,	// Steam
+		};
+
+		private static float[] _gravity = new float[] {
+			0.0f,		// None
+			0.0f,		// Rock
+			0.653333f,	// Sand
+			0.653333f,	// Water
+			0.0f,		// Steam
 		};
 
 		private static IntVector2[] _primaryOffsets = new IntVector2[] {
