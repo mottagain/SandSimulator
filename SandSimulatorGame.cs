@@ -61,21 +61,25 @@ namespace SandSimulator
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
+			if (Keyboard.GetState().IsKeyDown(Keys.A))
+			{
+				this.CreateVoxelAtCursor(VoxelType.Acid);
+			}
+			if (Keyboard.GetState().IsKeyDown(Keys.R))
+			{
+				this.CreateVoxelAtCursor(VoxelType.Rock);
+			}
 			if (Keyboard.GetState().IsKeyDown(Keys.S))
 			{
 				this.CreateVoxelAtCursor(VoxelType.Sand);
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.L))
-			{
-				this.CreateVoxelAtCursor(VoxelType.Water);
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.G))
 			{
 				this.CreateVoxelAtCursor(VoxelType.Steam);
 			}
-			if (Keyboard.GetState().IsKeyDown(Keys.R))
+			if (Keyboard.GetState().IsKeyDown(Keys.L))
 			{
-				this.CreateVoxelAtCursor(VoxelType.Rock);
+				this.CreateVoxelAtCursor(VoxelType.Water);
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
 			{

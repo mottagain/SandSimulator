@@ -49,6 +49,13 @@ namespace SandSimulator.Sim
 			}
 			set
 			{
+				Voxel result;
+				Voxel search = new Voxel(VoxelType.None);
+				search.Position = pos;
+				if (this._data.TryGetValue(search, out result))
+				{
+					this._data.Remove(result);
+				}
 				if (value != null)
 				{
 					this._data.Add(value);

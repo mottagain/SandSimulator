@@ -3,7 +3,6 @@ A simple voxel "falling sand simulator" in C#.
 
 
 # TODO List:
-* Acid
 * Ash
 * Fire
 * Tiling

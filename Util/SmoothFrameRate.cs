@@ -1,7 +1,4 @@
 ﻿
-using Microsoft.Win32.SafeHandles;
-using System;
-
 namespace SandSimulator.Util
 {
 	internal class SmoothFramerate
