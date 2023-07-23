@@ -11,6 +11,7 @@ namespace SandSimulator.Sim
 		Rock,
 		Sand,
 		Water,
+		Wood,
 		Steam,
 	};
 
@@ -128,7 +129,7 @@ namespace SandSimulator.Sim
 				this.Speed -= friction;
 				
 				return true;
-			}
+			} 
 			return false;
 		}
 
@@ -139,6 +140,7 @@ namespace SandSimulator.Sim
 			Color.Gray, 		// Rock
 			Color.Yellow, 		// Sand
 			Color.Blue,			// Water
+			Color.SaddleBrown,	// Wood
 			Color.LightGray  	// Steam
 		};
 
@@ -147,6 +149,7 @@ namespace SandSimulator.Sim
 			0,	// Rock
 			0,	// Sand
 			0,	// Water
+			0,	// Wood
 			1,	// Steam
 		};
 
@@ -155,6 +158,7 @@ namespace SandSimulator.Sim
 			0.0f,		// Rock
 			0.653333f,	// Sand
 			0.653333f,	// Water
+			0.0f,		// Wood
 			0.0f,		// Steam
 		};
 
@@ -163,6 +167,7 @@ namespace SandSimulator.Sim
 			new IntVector2 { X = 0, Y = 0 },	// Rock
 			new IntVector2 { X = 0, Y = -1 },	// Sand
 			new IntVector2 { X = 0, Y = -1 },	// Water
+			new IntVector2 { X = 0, Y = 0 },	// Wood
 			new IntVector2 { X = 0, Y = 1 },	// Steam
 		};
 
@@ -171,25 +176,28 @@ namespace SandSimulator.Sim
 			new IntVector2[] { },																		// Rock
 			new IntVector2[] { new IntVector2 { X = -1, Y = -1 }, new IntVector2 { X = 1, Y = -1 } },	// Sand
 			new IntVector2[] { new IntVector2 { X = -1, Y = 0 }, new IntVector2 { X = 1, Y = 0 } },		// Water
+			new IntVector2[] { },																		// Wood
 			new IntVector2[] { new IntVector2 { X = -1, Y = 0 }, new IntVector2 { X = 1, Y = 0 } },		// Steam
 		};
 
 		private static bool[][] _swapsWith = new bool[][] {
-					 //  None,  Rock,  Sand,  Water, Steam
-			new bool[] { false, false, false, false, false },	// None
-			new bool[] { false, false, false, false, false },	// Rock
-			new bool[] { true,  false, false, true,  true  },	// Sand
-			new bool[] { true,  false, false, false, true },	// Water
-			new bool[] { true,  false, false, false, false },	// Steam
+					 //  None,  Rock,  Sand,  Water, Wood,  Steam
+			new bool[] { false, false, false, false, false, false },	// None
+			new bool[] { false, false, false, false, false, false },	// Rock
+			new bool[] { true,  false, false, true,  false, true  },	// Sand
+			new bool[] { true,  false, false, false, false, true  },	// Water
+			new bool[] { false, false, false, false, false, false },	// Wood
+			new bool[] { true,  false, false, false, false, false },	// Steam
 		};
 
 		private static float[][] _friction = new float[][] {
-					 //   None, Rock,  Sand,  Water, Steam
-			new float[] { 0.0f,  0.0f,  0.0f,  0.0f,  0.0f },	// None
-			new float[] { 0.0f,  0.0f,  0.0f,  0.0f,  0.0f },	// Rock
-			new float[] { 0.0f, 0.06f, 0.05f,  0.0f,  0.0f },	// Sand
-			new float[] { 0.0f,0.005f,0.005f,0.005f,  0.0f },	// Water
-			new float[] { 0.0f, 0.01f,  0.0f,  0.0f,  0.0f },	// Steam
+					 //   None, Rock,  Sand,  Water, Wood,  Steam
+			new float[] { 0.0f,  0.0f,  0.0f,  0.0f, 0.0f,  0.0f },	// None
+			new float[] { 0.0f,  0.0f,  0.0f,  0.0f, 0.0f,  0.0f },	// Rock
+			new float[] { 0.0f, 0.06f, 0.05f,  0.0f, 0.06f, 0.0f },	// Sand
+			new float[] { 0.0f,0.005f,0.005f,0.005f, 0.005f,0.0f },	// Water
+			new float[] { 0.0f,  0.0f,  0.0f,  0.0f, 0.0f,  0.0f },	// Wood
+			new float[] { 0.0f, 0.01f,  0.0f,  0.0f, 0.01f, 0.0f },	// Steam
 		};
 	}
 }

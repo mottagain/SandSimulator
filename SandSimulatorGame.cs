@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using SandSimulator.Sim;
+using SandSimulator.Util;
 
 namespace SandSimulator
 {
@@ -12,6 +13,7 @@ namespace SandSimulator
 		private SpriteBatch _spriteBatch;
 		private VoxelSimulation _simulation;
 		private SpriteFont _font;
+		private SmoothFramerate _frameRate;
 
 		public SandSimulatorGame()
 		{
@@ -19,13 +21,15 @@ namespace SandSimulator
 			_graphics.PreferredBackBufferWidth = 1600;
 			_graphics.PreferredBackBufferHeight = 900;
 			_simulation = null;
+			_font = null;
+			_frameRate = new SmoothFramerate(10);
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
 		}
 
 		protected override void Initialize()
 		{
-			var grid = new VoxelGrid(160, 90);
+			var grid = new VoxelGrid(320, 180);
 
 			_simulation = new VoxelSimulation(grid);
 
@@ -52,6 +56,8 @@ namespace SandSimulator
 
 		protected override void Update(GameTime gameTime)
 		{
+			this._frameRate.Update(gameTime.ElapsedGameTime.TotalSeconds);
+
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
@@ -59,7 +65,7 @@ namespace SandSimulator
 			{
 				this.CreateVoxelAtCursor(VoxelType.Sand);
 			}
-			if (Keyboard.GetState().IsKeyDown(Keys.W))
+			if (Keyboard.GetState().IsKeyDown(Keys.L))
 			{
 				this.CreateVoxelAtCursor(VoxelType.Water);
 			}
@@ -70,6 +76,10 @@ namespace SandSimulator
 			if (Keyboard.GetState().IsKeyDown(Keys.R))
 			{
 				this.CreateVoxelAtCursor(VoxelType.Rock);
+			}
+			if (Keyboard.GetState().IsKeyDown(Keys.W))
+			{
+				this.CreateVoxelAtCursor(VoxelType.Wood);
 			}
 
 			this._simulation.Step();
@@ -82,7 +92,6 @@ namespace SandSimulator
 			GraphicsDevice.Clear(Color.Black);
 
 			_spriteBatch.Begin();
-			_spriteBatch.DrawString(_font, $"{_simulation.UpdatesLastFrame}", new Vector2(10, 10), Color.Green);
 
 			var cellWidth = GraphicsDevice.Viewport.Width / _simulation.Width;
 			var cellHeight = GraphicsDevice.Viewport.Height / _simulation.Height;
@@ -94,8 +103,9 @@ namespace SandSimulator
 				_spriteBatch.FillRectangle(new Rectangle(posX, posY, cellWidth, cellHeight), voxel.Color);
 			}
 
-			_spriteBatch.End();
+			_spriteBatch.DrawString(_font, $"FPS: {_frameRate.Framerate:0000} Updates: {_simulation.UpdatesLastFrame}", new Vector2(10, 10), Color.Green);
 
+			_spriteBatch.End();
 			base.Draw(gameTime);
 		}
 
