@@ -103,10 +103,10 @@ namespace SandSimulator
 			var cellWidth = GraphicsDevice.Viewport.Width / _simulation.Width;
 			var cellHeight = GraphicsDevice.Viewport.Height / _simulation.Height;
 
-			foreach (var voxel in this._simulation.Grid.Traverse())
+			foreach ((var pos, var voxel) in this._simulation.Grid.Traverse())
 			{
-				var posX = voxel.Position.X * cellWidth;
-				var posY = GraphicsDevice.Viewport.Height - (voxel.Position.Y + 1) * cellHeight;
+				var posX = pos.X * cellWidth;
+				var posY = GraphicsDevice.Viewport.Height - (pos.Y + 1) * cellHeight;
 				_spriteBatch.FillRectangle(new Rectangle(posX, posY, cellWidth, cellHeight), voxel.Color);
 			}
 

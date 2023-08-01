@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SandSimulator.Sim
 {
@@ -9,13 +10,13 @@ namespace SandSimulator.Sim
 	{
 		private int _width;
 		private int _height;
-		private SortedSet<Voxel> _data;
+		private Dictionary<IntVector2, Voxel> _data;
 
 		public VoxelTile(int width, int height)
 		{
 			_width = width;
 			_height = height;
-			_data = new SortedSet<Voxel>(new VoxelComparerByPosition());
+			_data = new Dictionary<IntVector2, Voxel>();
 		}
 
 		public int Width { get { return _width; } }
@@ -37,40 +38,33 @@ namespace SandSimulator.Sim
 		{
 			get
 			{
-				Voxel search = new Voxel(VoxelType.None);
-				search.Position = pos;
-
-				Voxel result;
-				if (this._data.TryGetValue(search, out result))
+				if (this._data.TryGetValue(pos, out var result))
 				{
 					return result;
 				}
+
 				return null;
 			}
 			set
 			{
 				Voxel result;
-				Voxel search = new Voxel(VoxelType.None);
-				search.Position = pos;
-				if (this._data.TryGetValue(search, out result))
+
+				if (this._data.TryGetValue(pos, out result))
 				{
-					this._data.Remove(result);
+					this._data.Remove(pos);
 				}
-				if (value != null)
-				{
-					this._data.Add(value);
-				}
+				this._data.Add(pos, value);
 			}
 		}
 
-		public IEnumerable<Voxel> Traverse()
+		public IEnumerable<(IntVector2, Voxel)> Traverse()
 		{
-			var inOrderVoxels = new Voxel[this._data.Count];
-			this._data.CopyTo(inOrderVoxels);
+			// Snapshot the container so we can modify the original collection while enumerating.
+			var snapshot = this._data.Select(kvp => (kvp.Key, kvp.Value)).ToList();
 
-			foreach (var voxel in inOrderVoxels)
+			foreach (var item in snapshot)
 			{
-				yield return voxel;
+				yield return item;
 			}
 		}
 
@@ -78,30 +72,26 @@ namespace SandSimulator.Sim
 		{
 			Voxel search = new Voxel(VoxelType.None);
 
-			search.Position = a;
 			Voxel atPosA;
-			if (this._data.TryGetValue(search, out atPosA))
+			if (this._data.TryGetValue(a, out atPosA))
 			{
-				this._data.Remove(atPosA);
+				this._data.Remove(a);
 			}
 
-			search.Position = b;
 			Voxel atPosB;
-			if (this._data.TryGetValue(search, out atPosB))
+			if (this._data.TryGetValue(b, out atPosB))
 			{
-				this._data.Remove(atPosB);
+				this._data.Remove(b);
 			}
 
 			if (atPosA != null)
 			{
-				atPosA.Position = b;
-				this._data.Add(atPosA);
+				this._data.Add(b, atPosA);
 			}
 
 			if (atPosB != null)
 			{
-				atPosB.Position = a;
-				this._data.Add(atPosB);
+				this._data.Add(a, atPosB);
 			}
 		}
 	}

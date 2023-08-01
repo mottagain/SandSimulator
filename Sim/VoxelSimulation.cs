@@ -20,7 +20,6 @@ namespace SandSimulator.Sim
 		public void AddVoxel(VoxelType type, IntVector2 pos)
 		{
 			var voxel = new Voxel(type);
-			voxel.Position = pos;
 			this.Grid[pos] = voxel;
 		}
 
@@ -28,9 +27,9 @@ namespace SandSimulator.Sim
 		{
 			this.UpdatesLastFrame = 0;
 
-			foreach (var voxel in this.Grid.Traverse())
+			foreach ((var pos, var voxel) in this.Grid.Traverse())
 			{
-				if (voxel.Step(this.Grid))
+				if (voxel.Step(pos, this.Grid))
 				{
 					this.UpdatesLastFrame++;
 				}

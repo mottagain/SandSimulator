@@ -16,18 +16,6 @@ namespace SandSimulator.Sim
 		Steam,
 	};
 
-	internal class VoxelComparerByPosition : IComparer<Voxel>
-	{
-		public int Compare(Voxel lhs, Voxel rhs)
-		{
-			int result = lhs.Position.Y.CompareTo(rhs.Position.Y);
-			if (result != 0) return result;
-
-			result = lhs.Position.X.CompareTo(rhs.Position.X);
-			return result;
-		}
-	}
-
 	internal class Voxel
 	{
 		public Voxel(VoxelType type) {
@@ -45,8 +33,6 @@ namespace SandSimulator.Sim
 
 		public bool Momentum { get; set;}
 
-		public IntVector2 Position { get; set; }
-
 		public Color Color
 		{ 
 			get 
@@ -55,7 +41,7 @@ namespace SandSimulator.Sim
 			}
 		}
 
-		public bool Step(VoxelTile grid)
+		public bool Step(IntVector2 pos, VoxelTile tile)
 		{
 			bool moved = false;
 
@@ -70,7 +56,7 @@ namespace SandSimulator.Sim
 				var primaryOffset = _primaryOffsets[(int)this.Type];
 				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
 
-				if (this.ApplyOffset(grid, primaryOffset))
+				if (this.ApplyOffset(tile, ref pos, primaryOffset))
 				{
 					moved = true;
 					this.FreeFall = true;
@@ -83,7 +69,7 @@ namespace SandSimulator.Sim
 					{
 						foreach (var offset in secondaryOffsets)
 						{
-							if (this.ApplyOffset(grid, offset))
+							if (this.ApplyOffset(tile, ref pos, offset))
 							{
 								moved = true;
 								break;
@@ -94,7 +80,7 @@ namespace SandSimulator.Sim
 					{
 						for (int i = secondaryOffsets.Length - 1; i >= 0; i--)
 						{
-							if (this.ApplyOffset(grid, secondaryOffsets[i]))
+							if (this.ApplyOffset(tile, ref pos, secondaryOffsets[i]))
 							{
 								moved = true;
 								break;
@@ -106,10 +92,10 @@ namespace SandSimulator.Sim
 			return moved;
 		}
 
-		private bool ApplyOffset(VoxelTile grid, IntVector2 offset) 
+		private bool ApplyOffset(VoxelTile tile, ref IntVector2 pos, IntVector2 offset) 
 		{
-			var targetPos = this.Position + offset;
-			var targetCell = grid[targetPos];
+			var targetPos = pos + offset;
+			var targetCell = tile[targetPos];
 			var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
 
 			if (_swapsWith[(int)this.Type][(int)targetType])
@@ -121,10 +107,11 @@ namespace SandSimulator.Sim
 					targetCell.FreeFall = true;
 				}
 
-				grid.Swap(this.Position, targetPos);
+				tile.Swap(pos, targetPos);
+				pos = targetPos;
 
-				var belowVoxel = this.Position + new IntVector2 { X = 0, Y = -1 };
-				var belowCell = grid[belowVoxel];
+				var belowVoxel = pos + new IntVector2 { X = 0, Y = -1 };
+				var belowCell = tile[belowVoxel];
 				var belowType = belowCell != null ? belowCell.Type : VoxelType.None;
 				var friction = _friction[(int)this.Type][(int)belowType];
 				this.Speed -= friction;
