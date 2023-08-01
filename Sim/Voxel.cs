@@ -55,7 +55,7 @@ namespace SandSimulator.Sim
 			}
 		}
 
-		public bool Step(VoxelGrid grid)
+		public bool Step(VoxelTile grid)
 		{
 			bool moved = false;
 
@@ -106,7 +106,7 @@ namespace SandSimulator.Sim
 			return moved;
 		}
 
-		private bool ApplyOffset(VoxelGrid grid, IntVector2 offset) 
+		private bool ApplyOffset(VoxelTile grid, IntVector2 offset) 
 		{
 			var targetPos = this.Position + offset;
 			var targetCell = grid[targetPos];

@@ -32,7 +32,7 @@ namespace SandSimulator
 //			_graphics.IsFullScreen = true;
 //			_graphics.ApplyChanges();
 
-			var grid = new VoxelGrid(320, 180);
+			var grid = new VoxelTile(320, 180);
 
 			_simulation = new VoxelSimulation(grid);
 

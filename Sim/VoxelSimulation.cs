@@ -3,9 +3,9 @@ namespace SandSimulator.Sim
 {
 	internal class VoxelSimulation
 	{
-		private VoxelGrid _grid;
+		private VoxelTile _grid;
 
-		public VoxelSimulation(VoxelGrid grid)
+		public VoxelSimulation(VoxelTile grid)
 		{
 			_grid = grid;
 		}
@@ -15,7 +15,7 @@ namespace SandSimulator.Sim
 
 		public int UpdatesLastFrame { get; set; }
 
-		public VoxelGrid Grid { get { return _grid; } }
+		public VoxelTile Grid { get { return _grid; } }
 
 		public void AddVoxel(VoxelType type, IntVector2 pos)
 		{

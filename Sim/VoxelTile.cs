@@ -5,13 +5,13 @@ namespace SandSimulator.Sim
 {
 	// X increases toward the right
 	// Y increases toward the top
-	internal class VoxelGrid
+	internal class VoxelTile
 	{
 		private int _width;
 		private int _height;
 		private SortedSet<Voxel> _data;
 
-		public VoxelGrid(int width, int height)
+		public VoxelTile(int width, int height)
 		{
 			_width = width;
 			_height = height;
