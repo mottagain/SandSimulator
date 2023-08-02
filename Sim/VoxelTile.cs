@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,6 +21,8 @@ namespace SandSimulator.Sim
 
 		public int Width { get { return _width; } }
 		public int Height { get { return _height; } }
+
+		public IntVector2 Size { get { return new IntVector2 { X = _width, Y = _height }; } }
 
 		public Voxel this[int x, int y]
 		{
@@ -47,6 +49,12 @@ namespace SandSimulator.Sim
 			}
 			set
 			{
+				if (pos.X < 0 || pos.X >= this._width || pos.Y < 0 || pos.Y >= this._height)
+				{
+					// Setting a voxel outside the bounds of this tile.
+					return;
+				}
+
 				Voxel result;
 
 				if (this._data.TryGetValue(pos, out result))
@@ -70,6 +78,13 @@ namespace SandSimulator.Sim
 
 		public void Swap(IntVector2 a, IntVector2 b)
 		{
+			if ((a.X < 0 || a.X >= this._width || a.Y < 0 || a.Y >= this._height) || 
+				(b.X < 0 || b.X >= this._width || b.Y < 0 || b.Y >= this._height))
+			{
+				// Setting a voxel outside the bounds of this tile.
+				return;
+			}
+
 			Voxel search = new Voxel(VoxelType.None);
 
 			Voxel atPosA;
@@ -86,12 +101,18 @@ namespace SandSimulator.Sim
 
 			if (atPosA != null)
 			{
-				this._data.Add(b, atPosA);
+				if (b.X >= 0 && b.X < this._width && b.Y >= 0 && b.Y < this._height)
+				{
+					this._data.Add(b, atPosA);
+				}
 			}
 
 			if (atPosB != null)
 			{
-				this._data.Add(a, atPosB);
+				if (a.X >= 0 && a.X < this._width && a.Y >= 0 && a.Y < this._height)
+				{
+					this._data.Add(a, atPosB);
+				}
 			}
 		}
 	}

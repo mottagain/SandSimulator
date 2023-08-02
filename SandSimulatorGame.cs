@@ -32,9 +32,9 @@ namespace SandSimulator
 //			_graphics.IsFullScreen = true;
 //			_graphics.ApplyChanges();
 
-			var grid = new VoxelTile(320, 180);
+			var level = new Level(320, 180);
 
-			_simulation = new VoxelSimulation(grid);
+			_simulation = new VoxelSimulation(level);
 
 			for (int i = 0; i < _simulation.Width; i++)
 			{
@@ -103,7 +103,7 @@ namespace SandSimulator
 			var cellWidth = GraphicsDevice.Viewport.Width / _simulation.Width;
 			var cellHeight = GraphicsDevice.Viewport.Height / _simulation.Height;
 
-			foreach ((var pos, var voxel) in this._simulation.Grid.Traverse())
+			foreach ((var pos, var voxel) in this._simulation.Level.Traverse())
 			{
 				var posX = pos.X * cellWidth;
 				var posY = GraphicsDevice.Viewport.Height - (pos.Y + 1) * cellHeight;
@@ -124,7 +124,7 @@ namespace SandSimulator
 			{
 				var pos = GetCursorPosInGrid(mousePos);
 
-				if (_simulation.Grid[pos] == null)
+				if (_simulation.Level[pos] == null)
 				{
 					_simulation.AddVoxel(type, pos);
 				}
@@ -137,7 +137,7 @@ namespace SandSimulator
 			var cellHeight = Window.ClientBounds.Height / _simulation.Height;
 
 			var posX = mousePos.X / cellWidth;
-			var posY = _simulation.Grid.Height - (mousePos.Y / cellHeight) - 1;
+			var posY = _simulation.Level.Height - (mousePos.Y / cellHeight) - 1;
 
 			return  new IntVector2 { X = posX, Y = posY };
 		}

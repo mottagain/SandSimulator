@@ -3,37 +3,29 @@ namespace SandSimulator.Sim
 {
 	internal class VoxelSimulation
 	{
-		private VoxelTile _grid;
+		private Level _level;
 
-		public VoxelSimulation(VoxelTile grid)
+		public VoxelSimulation(Level level)
 		{
-			_grid = grid;
+			_level = level;
 		}
 
-		public int Width { get { return _grid.Width; } }
-		public int Height { get { return _grid.Height;} }
+		public int Width { get { return _level.Width; } }
+		public int Height { get { return _level.Height;} }
 
 		public int UpdatesLastFrame { get; set; }
 
-		public VoxelTile Grid { get { return _grid; } }
+		public Level Level { get { return _level; } }
 
 		public void AddVoxel(VoxelType type, IntVector2 pos)
 		{
 			var voxel = new Voxel(type);
-			this.Grid[pos] = voxel;
+			this.Level[pos] = voxel;
 		}
 
 		public void Step()
 		{
-			this.UpdatesLastFrame = 0;
-
-			foreach ((var pos, var voxel) in this.Grid.Traverse())
-			{
-				if (voxel.Step(pos, this.Grid))
-				{
-					this.UpdatesLastFrame++;
-				}
-			}
+			this.UpdatesLastFrame = this.Level.Step();
 		}
 	}
 }
