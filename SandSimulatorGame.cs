@@ -38,14 +38,14 @@ namespace SandSimulator
 
 			for (int i = 0; i < _simulation.Width; i++)
 			{
-				_simulation.AddVoxel(VoxelType.Rock, new IntVector2 { X = i, Y = 0 });
-				_simulation.AddVoxel(VoxelType.Rock, new IntVector2 { X = i, Y = _simulation.Height - 1 });
+				_simulation.Level.AddVoxel(VoxelType.Rock, new IntVector2 { X = i, Y = 0 });
+				_simulation.Level.AddVoxel(VoxelType.Rock, new IntVector2 { X = i, Y = _simulation.Height - 1 });
 			}
 
 			for (int i = 0; i < _simulation.Height; i++)
 			{
-				_simulation.AddVoxel(VoxelType.Rock, new IntVector2 { X = 0, Y = i });
-				_simulation.AddVoxel(VoxelType.Rock, new IntVector2 { X = _simulation.Width - 1, Y = i });
+				_simulation.Level.AddVoxel(VoxelType.Rock, new IntVector2 { X = 0, Y = i });
+				_simulation.Level.AddVoxel(VoxelType.Rock, new IntVector2 { X = _simulation.Width - 1, Y = i });
 			}
 
 			base.Initialize();
@@ -103,7 +103,7 @@ namespace SandSimulator
 			var cellWidth = GraphicsDevice.Viewport.Width / _simulation.Width;
 			var cellHeight = GraphicsDevice.Viewport.Height / _simulation.Height;
 
-			foreach ((var pos, var voxel) in this._simulation.Level.Traverse())
+			foreach ((var pos, var voxel) in this._simulation.Level.TraverseSimDist())
 			{
 				var posX = pos.X * cellWidth;
 				var posY = GraphicsDevice.Viewport.Height - (pos.Y + 1) * cellHeight;
@@ -124,10 +124,7 @@ namespace SandSimulator
 			{
 				var pos = GetCursorPosInGrid(mousePos);
 
-				if (_simulation.Level[pos] == null)
-				{
-					_simulation.AddVoxel(type, pos);
-				}
+				_simulation.Level.AddVoxel(type, pos);
 			}
 		}
 

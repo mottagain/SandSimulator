@@ -17,12 +17,6 @@ namespace SandSimulator.Sim
 
 		public Level Level { get { return _level; } }
 
-		public void AddVoxel(VoxelType type, IntVector2 pos)
-		{
-			var voxel = new Voxel(type);
-			this.Level[pos] = voxel;
-		}
-
 		public void Step()
 		{
 			this.UpdatesLastFrame = this.Level.Step();
