@@ -41,7 +41,7 @@ namespace SandSimulator.Sim
 			}
 		}
 
-		public bool Step(IntVector2 pos, VoxelTile tile)
+		public bool Step(IntVector2 pos, Func<IntVector2, VoxelTile> fetchTile)
 		{
 			bool moved = false;
 
@@ -50,13 +50,15 @@ namespace SandSimulator.Sim
 				this.Speed += _gravity[(int)this.Type];
 			}
 
+			var tile = fetchTile(new IntVector2 { X = 0, Y = 0 });
+
 			for (int step = 0; step < (int)Math.Round(this.Speed); step++) 
 			{
 
 				var primaryOffset = _primaryOffsets[(int)this.Type];
 				var secondaryOffsets = _secondaryOffsets[(int)this.Type];
 
-				if (this.ApplyOffset(tile, ref pos, primaryOffset))
+				if (this.ApplyOffset(tile, ref pos, primaryOffset, fetchTile))
 				{
 					moved = true;
 					this.FreeFall = true;
@@ -69,7 +71,7 @@ namespace SandSimulator.Sim
 					{
 						foreach (var offset in secondaryOffsets)
 						{
-							if (this.ApplyOffset(tile, ref pos, offset))
+							if (this.ApplyOffset(tile, ref pos, offset, fetchTile))
 							{
 								moved = true;
 								break;
@@ -80,7 +82,7 @@ namespace SandSimulator.Sim
 					{
 						for (int i = secondaryOffsets.Length - 1; i >= 0; i--)
 						{
-							if (this.ApplyOffset(tile, ref pos, secondaryOffsets[i]))
+							if (this.ApplyOffset(tile, ref pos, secondaryOffsets[i], fetchTile))
 							{
 								moved = true;
 								break;
@@ -92,10 +94,14 @@ namespace SandSimulator.Sim
 			return moved;
 		}
 
-		private bool ApplyOffset(VoxelTile tile, ref IntVector2 pos, IntVector2 offset) 
+		private bool ApplyOffset(VoxelTile tile, ref IntVector2 pos, IntVector2 offset, Func<IntVector2, VoxelTile> fetchTile)
 		{
-			var targetPos = pos + offset;
-			var targetCell = tile[targetPos];
+			var rawTargetPos = pos + offset;
+			var targetPos = new IntVector2 { X = rawTargetPos.X % tile.Width, Y = rawTargetPos.Y % tile.Height };
+			var targetTileOffset = new IntVector2 { X = targetPos.X / tile.Width, Y = targetPos.Y / tile.Height };
+			var targetTile = fetchTile(targetTileOffset);
+
+			var targetCell = targetTile[targetPos];
 			var targetType = targetCell != null ? targetCell.Type : VoxelType.None;
 
 			if (_swapsWith[(int)this.Type][(int)targetType])
@@ -107,7 +113,7 @@ namespace SandSimulator.Sim
 					targetCell.FreeFall = true;
 				}
 
-				tile.Swap(pos, targetPos);
+				VoxelTile.Swap(tile, pos, targetTile, targetPos);
 				pos = targetPos;
 
 				var belowVoxel = pos + new IntVector2 { X = 0, Y = -1 };

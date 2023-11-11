@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MonoGame.Extended.Collections;
 
 namespace SandSimulator.Sim
 {
@@ -60,11 +61,11 @@ namespace SandSimulator.Sim
 		{
 			int updates = 0;
 
-			foreach (var tile in _tiles.Values)
+			foreach ((var tileOffset, var tile) in _tiles)
 			{
 				foreach ((var pos, var voxel) in tile.Traverse())
 				{
-					if (voxel.Step(pos, tile))
+					if (voxel.Step(pos, (IntVector2 relativeTilePos) => this.fetchTile(tileOffset + relativeTilePos)))
 					{
 						updates++;
 					}
@@ -72,6 +73,17 @@ namespace SandSimulator.Sim
 			}
 
 			return updates;
+		}
+
+		private VoxelTile fetchTile(IntVector2 tileOffset)
+		{
+			this._tiles.TryGetValue(tileOffset, out var tile);
+			if (tile == null)
+			{
+				tile = new VoxelTile(_tileSize.X, _tileSize.Y);
+				this._tiles.Add(tileOffset, tile);
+			}
+			return tile;
 		}
 
 		private IntVector2 TilePositionOfVoxel(IntVector2 pos)

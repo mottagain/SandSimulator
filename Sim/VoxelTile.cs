@@ -51,8 +51,7 @@ namespace SandSimulator.Sim
 			{
 				if (pos.X < 0 || pos.X >= this._width || pos.Y < 0 || pos.Y >= this._height)
 				{
-					// Setting a voxel outside the bounds of this tile.
-					return;
+					throw new InvalidOperationException("Position is out of bounds.");
 				}
 
 				Voxel result;
@@ -76,42 +75,35 @@ namespace SandSimulator.Sim
 			}
 		}
 
-		public void Swap(IntVector2 a, IntVector2 b)
+		public static void Swap(VoxelTile tileA, IntVector2 a, VoxelTile tileB, IntVector2 b)
 		{
-			if ((a.X < 0 || a.X >= this._width || a.Y < 0 || a.Y >= this._height) || 
-				(b.X < 0 || b.X >= this._width || b.Y < 0 || b.Y >= this._height))
-			{
-				// Setting a voxel outside the bounds of this tile.
-				return;
-			}
-
 			Voxel search = new Voxel(VoxelType.None);
 
 			Voxel atPosA;
-			if (this._data.TryGetValue(a, out atPosA))
+			if (tileA._data.TryGetValue(a, out atPosA))
 			{
-				this._data.Remove(a);
+				tileA._data.Remove(a);
 			}
 
 			Voxel atPosB;
-			if (this._data.TryGetValue(b, out atPosB))
+			if (tileB._data.TryGetValue(b, out atPosB))
 			{
-				this._data.Remove(b);
+				tileB._data.Remove(b);
 			}
 
 			if (atPosA != null)
 			{
-				if (b.X >= 0 && b.X < this._width && b.Y >= 0 && b.Y < this._height)
+				if (b.X >= 0 && b.X < tileA._width && b.Y >= 0 && b.Y < tileA._height)
 				{
-					this._data.Add(b, atPosA);
+					tileA._data.Add(b, atPosA);
 				}
 			}
 
 			if (atPosB != null)
 			{
-				if (a.X >= 0 && a.X < this._width && a.Y >= 0 && a.Y < this._height)
+				if (a.X >= 0 && a.X < tileB._width && a.Y >= 0 && a.Y < tileB._height)
 				{
-					this._data.Add(a, atPosB);
+					tileB._data.Add(a, atPosB);
 				}
 			}
 		}

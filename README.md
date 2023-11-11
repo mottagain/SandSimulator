@@ -3,6 +3,7 @@ A simple voxel "falling sand simulator" in C#.
 
 
 # TODO List:
+* Fix Swap to allow for cross tile swapping
 * Ash
 * Fire
 * Tiling
